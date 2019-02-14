@@ -29,12 +29,18 @@ class Config:
     #########################################################################
     # Environment configuration
 
+    # Time step size
+    TIME_STEP = 0.01
+
     # The world boundary, as a square
     WORLD_X_BOUND = 10
     WORLD_Y_BOUND = 10
 
     # Target area, a circle for now (TODO: define another class specifying different
     # types of target area, and specify the type name here)
+
+    # Target type
+    TARGET_TYPE = 'circle'
 
     # Radius of the target area
     TARGET_RADIUS = 3
