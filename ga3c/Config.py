@@ -30,7 +30,7 @@ class Config:
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.01
+    TIME_STEP = 0.5
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
