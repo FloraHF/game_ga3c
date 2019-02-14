@@ -27,7 +27,7 @@
 class Config:
 
     #########################################################################
-    # Environment configuration
+    # Game configuration
 
     # Time step size
     TIME_STEP = 0.01
@@ -65,6 +65,11 @@ class Config:
     INTRUDER_MAX_ACCELERATION = 1
     # Defender's capture range
     CAPTURE_RANGE = 1
+
+    # Reward definitions
+    PENALTY_TIME_PASS = -0.01
+    REWARD_CAPTURE = 0.8
+    REWARD_ENTER = 0.8
 
     #########################################################################
     # Game configuration
