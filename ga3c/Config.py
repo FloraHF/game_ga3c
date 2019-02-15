@@ -24,13 +24,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import numpy as np
+import math
+
 class Config:
 
     #########################################################################
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.5
+    TIME_STEP = 1
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -51,17 +54,18 @@ class Config:
     DEFENDER_COUNT = 2
     # Number of intruders
     INTRUDER_COUNT = 1
-    # Dynamic type of the defenders
+
+    # Dynamic types
     DEFENDER_DYNAMIC = 'simple_motion'
-    # Dynamics type of the intruders
     INTRUDER_DYNAMIC = 'simple_motion'
-    # Defender's maximum speed
+    # Action spaces
+    DEFENDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
+    INTRUDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
+    # Maximum velocities
     DEFENDER_MAX_VELOCITY = 1
-    # Intruder's maximum speed
     INTRUDER_MAX_VELOCITY = 1.3
-    # Defender's maximum acceleration
+    # Maximum accelerations
     DEFENDER_MAX_ACCELERATION = 1
-    # Intruder's maximum acceleration
     INTRUDER_MAX_ACCELERATION = 1
     # Defender's capture range
     CAPTURE_RANGE = 1
@@ -123,7 +127,7 @@ class Config:
     PREDICTION_BATCH_SIZE = 128
 
     # Input of the DNN
-    STACKED_FRAMES = 4
+    STACKED_FRAMES = DEFENDER_COUNT + INTRUDER_COUNT + 1
     IMAGE_WIDTH = 84
     IMAGE_HEIGHT = 84
 
