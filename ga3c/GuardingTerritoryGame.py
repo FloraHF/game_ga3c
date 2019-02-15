@@ -24,22 +24,17 @@ class GuardingTerritoryGame:
         self.captured = []
         self.entered = []
 
-        # states
-        self.previous_state = None
-        self.current_state = None
-
         self.reset()
 
-    def state_update(self):
-        for d in self.defenders:
-            self.current_state[d,1] = d.current_x
-            self.current_state[d,2] = d.current_y
-        for i in self.active_intruders:
-            self.current_state[i+self.dcount,1] = i.current_x
-            self.cuurent_state[i+self.dcount,2] = i.current_y
-
     def _get_current_state(self):
-        x_ = self.current_state
+        x_ = np.array([self.defenders[0].current_x, \
+                       self.defenders[0].current_y]).reshape(2, 1)
+        for d in np.arange(1, self.dcount):
+            x_ = np.hstack((x_, np.array([self.defenders[d].current_x, \
+                                          self.defenders[d].current_y]).reshape(2,1)))
+        for i in self.active:
+            x_ = np.hstack((x_, np.array([self.intruders[i].current_x, \
+                                          self.intruders[i].current_y]).reshape(2,1)))
         return x_
 
     def _update_intruders(self):
@@ -117,7 +112,7 @@ class GuardingTerritoryGame:
         return reward, done
 
     def intruder_step(self, id, action):
-
+        done = self.intruders[id].done
         if self.intruders[id].captured_mem or self.intruders[id].entered:
             reward = None
             done = True
@@ -149,7 +144,8 @@ class GuardingTerritoryGame:
                         d.capture_buffer += 1
 
                 # check if enters
-                if self.target.is_in_target(new_x, new_y):
+                if self.target.is_in_target(self.intruders[id].current_x, \
+                                            self.intruders[id].current_y):
                     self.intruders[id].entered = True
                     reward += Config.REWARD_ENTER
                     done = True
@@ -169,16 +165,16 @@ class GuardingTerritoryGame:
     def reset(self):
         self.defenders = []
         self.intruders = []
-        for d in np.arange(self.dcount):
-            self.defenders.append(Defender(id=d))
+        # for d in np.arange(self.dcount):
+        #     self.defenders.append(Defender(id=d))
+        # just for 2DSI for now
+        self.defenders.append(Defender(id=0, x=-2, y=4))
+        self.defenders.append(Defender(id=0, x= 2, y=4))
         for i in np.arange(self.icount):
-            self.intruders.append(Intruder(id=i))
+            self.intruders.append(Intruder(id=i, x=0, y=7))
         self.active = np.arange(self.icount)
         self.captured = []
         self.entered = []
-
-        self.previous_state = None
-        self.current_state = None
 
 class Target:
     """This is a for Target."""
