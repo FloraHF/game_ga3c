@@ -60,10 +60,10 @@ class Environment:
             self.frame_q.get()
         self.frame_q.put(new_state)
 
-    def get_defender_num_actions(self, id):
+    def get_defender_num_actions(self, id=0):
         return self.game.defenders[id].get_num_actions()
 
-    def get_intruder_num_actions(self, id):
+    def get_intruder_num_actions(self, id=0):
         return self.game.intruders[id].get_num_actions()
 
     def reset(self):

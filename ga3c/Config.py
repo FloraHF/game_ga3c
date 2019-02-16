@@ -128,8 +128,8 @@ class Config:
 
     # Input of the DNN
     STACKED_FRAMES = DEFENDER_COUNT + INTRUDER_COUNT + 1
-    IMAGE_WIDTH = 84
-    IMAGE_HEIGHT = 84
+    PLAYER_COUNT = DEFENDER_COUNT + INTRUDER_COUNT
+    PLAYER_DIMENSION = 2
 
     # Total number of episodes and annealing frequency
     EPISODES = 400000
