@@ -52,7 +52,7 @@ class Environment:
         if not self.frame_q.full():
             return None  # frame queue is not full yet.
         x_ = np.array(self.frame_q.queue)
-        # x_ = np.transpose(x_, [1, 2, 0])  # move channels
+        x_ = np.transpose(x_, [1, 2, 0])  # move channels
         return x_
 
     def _update_frame_q(self, new_state):
@@ -60,19 +60,19 @@ class Environment:
             self.frame_q.get()
         self.frame_q.put(new_state)
 
-    def get_defender_num_actions(self, id=0):
-        return self.game.defenders[id].get_num_actions()
-
-    def get_intruder_num_actions(self, id=0):
-        return self.game.intruders[id].get_num_actions()
+    def get_num_actions(self, id=0, player='intruder'):
+        if player == 'intruder':
+            return self.game.intruders[id].get_num_actions()
+        elif player == 'defender':
+            return self.game.defenders[id].get_num_actions()
 
     def reset(self):
         self.game.reset()
         self.total_reward = 0
         self.frame_q.queue.clear()
+        self._update_frame_q(self.game.get_state())
         self.previous_state = None
-        self.current_state = self.game.get_state()
-        self._update_frame_q(self.current_state)
+        self.current_state = None
 
     def defender_step(self, id, action):
         reward, done = self.game.defender_step(id, action)
@@ -94,4 +94,6 @@ class Environment:
 
         self.previous_state = self.current_state
         self.current_state = self._get_current_state()
+
+        # print(self.current_state)
         return reward, done

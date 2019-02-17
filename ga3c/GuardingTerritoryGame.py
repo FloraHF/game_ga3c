@@ -15,8 +15,8 @@ class GuardingTerritoryGame:
         self.icount = Config.INTRUDER_COUNT
 
         # default_actions
-        self.defender_default_action = -math.pi
-        self.intruder_default_action = -math.pi # TODO randomize func, in Player
+        self.defender_default_action = -3
+        self.intruder_default_action = -3 # TODO randomize func, in Player
 
         # target
         self.target = Target()
@@ -75,7 +75,7 @@ class GuardingTerritoryGame:
                     d.done = True
 
 
-    def defender_step(self, id, action=self.defender_default_action):
+    def defender_step(self, id, action):
 
         # if done, return
         if self.defenders[id].done == True:
@@ -115,7 +115,7 @@ class GuardingTerritoryGame:
         done = self.defenders[id].done
         return reward, done
 
-    def intruder_step(self, id, action=self.intruder_default_action):
+    def intruder_step(self, id, action):
         done = self.intruders[id].done
         if self.intruders[id].captured_mem or self.intruders[id].entered:
             reward = 0

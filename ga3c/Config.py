@@ -33,7 +33,7 @@ class Config:
     # Game configuration
 
     # Time step size
-    TIME_STEP = 1
+    TIME_STEP = 0.1
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -95,7 +95,7 @@ class Config:
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 32
+    AGENTS = 10
     # Number of Predictors
     PREDICTORS = 2
     # Number of Trainers
