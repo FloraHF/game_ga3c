@@ -8,9 +8,7 @@ class GuardingTerritoryGame:
     def __init__(self):
 
         # environment parameters
-        self.x_bound = Config.WORLD_X_BOUND
-        self.y_bound = Config.WORLD_Y_BOUND
-
+        self.world = WorldMap()
         # number of defenders and intruders
         self.dcount = Config.DEFENDER_COUNT
         self.icount = Config.INTRUDER_COUNT
@@ -107,10 +105,10 @@ class GuardingTerritoryGame:
             new_x, new_y = self.defenders[id].try_step(action)
             num_trial = 0
             while self.target.is_in_target(new_x, new_y) and \
-                    num_trial < 2*self.defenders[id].get_num_actions:
-                new_x, new_y = self.defenders[id].try_step(self.random_move())
+                    num_trial < 2*self.defenders[id].get_num_actions():
+                new_x, new_y = self.defenders[id].try_step(self.defenders[id].random_move())
                 num_trial += 1
-            if num_trial < 2*self.defenders[id].get_num_actions:
+            if num_trial < 2*self.defenders[id].get_num_actions():
                 self.defenders[id].x = new_x
                 self.defenders[id].y = new_y
             # check if any active intruder is captured
@@ -129,7 +127,17 @@ class GuardingTerritoryGame:
 
         if not self.intruders[id].done:
             self.defenders[id].time_buffer = 1
-            self.intruders[id].x, self.intruders[id].y = self.intruders[id].try_step(action)
+            new_x, new_y = self.intruders[id].try_step(action)
+            num_trial = 0
+            # move, but can't get outside the world map
+            while not self.world.is_in_world(new_x, new_y) and \
+                    num_trial < 2 * self.intruders[id].get_num_actions():
+                new_x, new_y = self.intruders[id].try_step(self.intruders[id].random_move())
+                num_trial += 1
+            if num_trial < 2*self.intruders[id].get_num_actions():
+                self.intruders[id].x = new_x
+                self.intruders[id].y = new_y
+
             for d in self.defenders:
                 if self._is_captured(d, self.intruders[id]):
                     self.intruders[id].captured = True
@@ -181,6 +189,16 @@ class Target:
     def is_in_target(self, x, y):
         return (self.contour(x, y) < 0)
 
+class WorldMap():
+    """docstring for WorldMap."""
+    def __init__(self):
+        self.x_bound = Config.WORLD_X_BOUND
+        self.y_bound = Config.WORLD_Y_BOUND
+        self.shape = 'Square'
+
+    def is_in_world(self, x, y):
+        if self.shape == 'Square':
+            return abs(x)<self.x_bound and abs(y)<self.y_bound
 
 class Player:
     """I am a player"""
@@ -209,7 +227,7 @@ class Player:
         return len(self.action_space)
 
     def random_move(self):
-        return self.action_space(rd.randint(0, self.get_num_actions-1))
+        return self.action_space[rd.randint(0, self.get_num_actions()-1)]
 
 
     def reset(self, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
