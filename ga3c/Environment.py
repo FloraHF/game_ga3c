@@ -40,24 +40,11 @@ from GameManager import GameManager
 class Environment:
     def __init__(self):
         self.game = GameManager(Config.ATARI_GAME, display=Config.PLAY_MODE)
-        self.nb_frames = Config.STACKED_FRAMES
-        self.frame_q = Queue(maxsize=self.nb_frames)
         self.previous_state = None
         self.current_state = None
         self.total_reward = 0
 
         self.reset()
-
-    @staticmethod
-    def _rgb2gray(rgb):
-        return np.dot(rgb[..., :3], [0.299, 0.587, 0.114])
-
-    @staticmethod
-    def _preprocess(image):
-        image = Environment._rgb2gray(image)
-        image = misc.imresize(image, [Config.IMAGE_HEIGHT, Config.IMAGE_WIDTH], 'bilinear')
-        image = image.astype(np.float32) / 128.0 - 1.0
-        return image
 
     def _get_current_state(self):
         if not self.frame_q.full():
