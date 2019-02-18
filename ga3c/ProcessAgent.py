@@ -60,7 +60,7 @@ class ProcessAgent(Process):
             r = np.clip(experiences[t].reward, Config.REWARD_MIN, Config.REWARD_MAX)
             reward_sum = discount_factor * reward_sum + r
             experiences[t].reward = reward_sum
-        return experiences[:-1]
+        return experiences
 
     def convert_data(self, experiences):
         x_ = np.array([exp.state for exp in experiences])
@@ -93,8 +93,8 @@ class ProcessAgent(Process):
         moves = 0
 
         while not done:
-            moves += 1
-            print("moves:", moves)
+            # moves += 1
+            print("current state:\n", self.env.current_state)
             # very first few frames
             if self.env.current_state is None:
                 self.env.intruder_step(0, 0)  # 0 == NOOP
@@ -103,13 +103,15 @@ class ProcessAgent(Process):
             action = self.select_action(prediction)
             reward, done = self.env.intruder_step(0, action)
             reward_sum += reward
+            if len(experiences):
+                experiences[-1].reward = reward
             exp = Experience(self.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
-            if done or time_count == Config.TIME_MAX:
-                terminal_reward = 0 if done else value
+            if done or time_count == Config.TIME_MAX+1:
+                terminal_reward = 0 if done else old_value
 
-                updated_exps = ProcessAgent._accumulate_rewards(experiences, self.discount_factor, terminal_reward)
+                updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
                 x_, r_, a_ = self.convert_data(updated_exps)
                 yield x_, r_, a_, reward_sum
 
@@ -118,6 +120,9 @@ class ProcessAgent(Process):
                 # keep the last experience for the next batch
                 experiences = [experiences[-1]]
                 reward_sum = 0.0
+
+            old_prediction = prediction
+            old_value = value
 
             time_count += 1
 

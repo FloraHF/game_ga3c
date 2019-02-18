@@ -76,8 +76,8 @@ class NetworkVP:
         self.global_step = tf.Variable(0, trainable=False, name='step')
 
         # As implemented in A3C paper
-        self.n1 = self.conv2d_layer(self.x, 8, 16, 'conv11', strides=[1, 4, 4, 1])
-        self.n2 = self.conv2d_layer(self.n1, 4, 32, 'conv12', strides=[1, 2, 2, 1])
+        self.n1 = self.conv2d_layer(self.x, 4, 8, 'conv11', strides=[1, 4, 4, 1])
+        self.n2 = self.conv2d_layer(self.n1, 4, 8, 'conv12', strides=[1, 2, 2, 1])
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
         _input = self.n2
 
@@ -85,7 +85,7 @@ class NetworkVP:
         nb_elements = flatten_input_shape[1] * flatten_input_shape[2] * flatten_input_shape[3]
 
         self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
-        self.d1 = self.dense_layer(self.flat, 256, 'dense1')
+        self.d1 = self.dense_layer(self.flat, 32, 'dense1')
 
         self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)

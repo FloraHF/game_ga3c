@@ -1,3 +1,6 @@
 import numpy as np
-a = np.zeros((2,3))
-print(np.shape(a))
+import random as rd
+
+
+a = np.zeros((2,3,4))
+print(a[:,:,-1])

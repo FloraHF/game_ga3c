@@ -46,7 +46,7 @@ class Config:
     TARGET_TYPE = 'circle'
 
     # Radius of the target area
-    TARGET_RADIUS = 3
+    TARGET_RADIUS = 5
     # Center of the target area
     TARGET_CENTER = [0, 0]
 
@@ -127,7 +127,7 @@ class Config:
     PREDICTION_BATCH_SIZE = 128
 
     # Input of the DNN
-    STACKED_FRAMES = DEFENDER_COUNT + INTRUDER_COUNT + 1
+    STACKED_FRAMES = 1
     PLAYER_COUNT = DEFENDER_COUNT + INTRUDER_COUNT
     PLAYER_DIMENSION = 2
 
