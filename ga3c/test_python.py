@@ -1,6 +1,9 @@
 import numpy as np
 import random as rd
+from GuardingTerritoryGame import Target
 
-
-a = np.zeros((2,3,4))
-print(a[:,:,-1])
+P = []
+P.append(Target())
+P.append(Target())
+if P:
+    print(P)

@@ -33,7 +33,7 @@ class Config:
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.2
+    TIME_STEP = 0.02
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -46,7 +46,7 @@ class Config:
     TARGET_TYPE = 'circle'
 
     # Radius of the target area
-    TARGET_RADIUS = 7
+    TARGET_RADIUS = 5
     # Center of the target area
     TARGET_CENTER = [0, 0]
 
@@ -71,9 +71,9 @@ class Config:
     CAPTURE_RANGE = 2
 
     # Reward definitions
-    PENALTY_TIME_PASS = -0.01
-    REWARD_CAPTURE = 0.8
-    REWARD_ENTER = 0.8
+    PENALTY_TIME_PASS = - 0.05 * TIME_STEP
+    REWARD_CAPTURE = 0.9
+    REWARD_ENTER = 0.9
 
     #########################################################################
     # Game configuration
@@ -86,7 +86,7 @@ class Config:
     # Enable to train
     TRAIN_MODELS = True
     # Load old models. Throws if the model doesn't exist
-    LOAD_CHECKPOINT = False
+    LOAD_CHECKPOINT = True
     # If 0, the latest checkpoint is loaded
     LOAD_EPISODE = 0
 
@@ -95,11 +95,11 @@ class Config:
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 10
+    AGENTS = 6
     # Number of Predictors
-    PREDICTORS = 2
+    PREDICTORS = 1
     # Number of Trainers
-    TRAINERS = 2
+    TRAINERS = 1
 
     # Device
     DEVICE = 'gpu:0'
@@ -132,7 +132,7 @@ class Config:
     PLAYER_DIMENSION = 2
 
     # Total number of episodes and annealing frequency
-    EPISODES = 400000
+    EPISODES = 100
     ANNEALING_EPISODE_COUNT = 400000
 
     # Entropy regualrization hyper-parameter
@@ -170,7 +170,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 1000
+    SAVE_FREQUENCY = 500
 
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1

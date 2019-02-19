@@ -139,13 +139,17 @@ class GuardingTerritoryGame:
         # for d in np.arange(self.dcount):
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
-        self.defenders.append(Defender(id=0, x=-7, y=6))
-        self.defenders.append(Defender(id=1, x= 7, y=6))
+        self.defenders.append(Defender(id=0, x=-5, y=7))
+        self.defenders.append(Defender(id=1, x= 3, y=6))
         for i in np.arange(self.icount):
-            self.intruders.append(Intruder(id=i, world=self.world, x=0, y=8))
+            self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
         self.active = np.arange(self.icount)
         self.captured = []
         self.entered = []
+
+#################################################################################
+################################# CLASS WORLDMAP ################################
+#################################################################################
 
 class Target:
     """This is a for Target."""
@@ -178,6 +182,10 @@ class WorldMap():
 
     def _get_max_target_level(self):
         return self.target.contour(self.x_bound, self.y_bound)
+
+#################################################################################
+################################## CLASS PLAYER #################################
+#################################################################################
 
 class Player:
     """I am a player"""
@@ -213,6 +221,7 @@ class Player:
         self.x = x
         self.y = y
 
+################################## CLASS DEFENDER #################################
 class Defender(Player):
     """I am a defender."""
     def __init__(self, id, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
@@ -225,7 +234,7 @@ class Defender(Player):
 
     def clearup_reward(self):
         # penalty for spending the time
-        reward = self.time_buffer * Config.PENALTY_TIME_PASS
+        reward = self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
         # reward of capture and breaking in
         reward += Config.REWARD_CAPTURE * self.capture_buffer
         reward -= Config.REWARD_ENTER * self.enter_buffer
@@ -240,6 +249,7 @@ class Defender(Player):
         super().reset(x, y)
         self.total_capture = 0
 
+################################## CLASS INTRUDER #################################
 class Intruder(Player):
     """I am an intruder."""
     def __init__(self, id, world, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
@@ -256,7 +266,7 @@ class Intruder(Player):
 
     def clearup_reward(self):
         # penalty for spending the time
-        reward = - self.time_buffer * Config.PENALTY_TIME_PASS
+        reward = - self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
         self.time_buffer = 0
         # reward for entering
         if self.entered and not self.entered_mem:
@@ -266,7 +276,8 @@ class Intruder(Player):
         if self.captured and not self.captured_mem:
             reward -= Config.REWARD_CAPTURE
         # reward for getting closer to target
-        reward += (self.target_level_old - self.target_level_new)/self.world.max_target_level
+        # reward += (self.target_level_old - self.target_level_new)/self.world.max_target_level
+        reward -= self.target_level_new/self.world.max_target_level
 
         return reward
 

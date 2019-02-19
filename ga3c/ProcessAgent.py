@@ -40,6 +40,7 @@ class ProcessAgent(Process):
         super(ProcessAgent, self).__init__()
 
         self.id = id
+        self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
         self.prediction_q = prediction_q
         self.training_q = training_q
         self.episode_log_q = episode_log_q
@@ -136,7 +137,9 @@ class ProcessAgent(Process):
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
+                self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
             self.episode_log_q.put((datetime.now(), total_reward, total_length))
+        self.trj_saver.close()

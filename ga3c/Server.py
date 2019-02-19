@@ -112,6 +112,7 @@ class Server:
         beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
 
         while self.stats.episode_count.value < Config.EPISODES:
+            
             step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
             self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
             self.model.beta = Config.BETA_START + beta_multiplier * step
@@ -123,7 +124,6 @@ class Server:
 
             time.sleep(0.01)
 
-        self.dynamic_adjustment.exit_flag = True
         while self.agents:
             self.remove_agent()
         while self.predictors:
