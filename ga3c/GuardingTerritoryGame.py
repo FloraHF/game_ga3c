@@ -17,9 +17,6 @@ class GuardingTerritoryGame:
         self.defender_default_action = -3
         self.intruder_default_action = -3 # TODO randomize func, in Player
 
-        # target
-        self.target = Target()
-
         # defenders and intruders
         self.defenders = [] # all the defender objectives
         self.intruders = [] # all the intruder objectives
@@ -67,35 +64,9 @@ class GuardingTerritoryGame:
             for d in self.defenders:
                 d.done = True
 
-    def defender_clearup_reward(self, id):
-        # penalty for spending the time
-        reward = self.defenders[id].time_buffer * Config.PENALTY_TIME_PASS
-        # reward of capture and breaking in
-        reward += Config.REWARD_CAPTURE * self.defenders[id].capture_buffer
-        reward -= Config.REWARD_ENTER * self.defenders[id].enter_buffer
-        # clear up reward buffers
-        self.defenders[id].capture_buffer = 0
-        self.defenders[id].enter_buffer = 0
-        self.defenders[id].time_buffer = 0
-        # return
-        return reward
-
-    def intruder_clearup_reward(self, id):
-        # penalty for spending the time
-        reward = - self.intruders[id].time_buffer * Config.PENALTY_TIME_PASS
-        # reward for entering
-        if self.intruders[id].entered and not self.intruders[id].entered_mem:
-            reward +=  Config.REWARD_ENTER
-            self.intruders[id].entered_mem = True
-        # penalty for capture
-        if self.intruders[id].captured and not self.intruders[id].captured_mem:
-            reward -= Config.REWARD_CAPTURE
-        self.intruders[id].time_buffer = 0
-        return reward
-
     def defender_step(self, id, action):
         # settle up reward of the last action
-        reward = self.defender_clearup_reward(id)
+        reward = self.defenders[id].clearup_reward()
 
         # if done, return
         if not self.defenders[id].done:
@@ -104,7 +75,7 @@ class GuardingTerritoryGame:
             # try to take an action, but can't enter the target
             new_x, new_y = self.defenders[id].try_step(action)
             num_trial = 0
-            while self.target.is_in_target(new_x, new_y) and \
+            while self.world.target.is_in_target(new_x, new_y) and \
                     num_trial < 2*self.defenders[id].get_num_actions():
                 new_x, new_y = self.defenders[id].try_step(self.defenders[id].random_move())
                 num_trial += 1
@@ -123,10 +94,11 @@ class GuardingTerritoryGame:
 
     def intruder_step(self, id, action):
 
-        reward = self.intruder_clearup_reward(id)
+        reward = self.intruders[id].clearup_reward()
 
         if not self.intruders[id].done:
-            self.defenders[id].time_buffer = 1
+            self.intruders[id].time_buffer = 1
+            self.intruders[id].target_level_old = self.intruders[id].target_level_new
             new_x, new_y = self.intruders[id].try_step(action)
             num_trial = 0
             # move, but can't get outside the world map
@@ -137,6 +109,8 @@ class GuardingTerritoryGame:
             if num_trial < 2*self.intruders[id].get_num_actions():
                 self.intruders[id].x = new_x
                 self.intruders[id].y = new_y
+            # identify how close it is from target
+            self.intruders[id].target_level_new = self.world.target.contour(self.intruders[id].x, self.intruders[id].y)
 
             for d in self.defenders:
                 if self._is_captured(d, self.intruders[id]):
@@ -144,7 +118,7 @@ class GuardingTerritoryGame:
                     self.intruders[id].captured_mem = True
                     self.intruders[id].done = True
                     d.capture_buffer += 1
-            if self.target.is_in_target(self.intruders[id].x, \
+            if self.world.target.is_in_target(self.intruders[id].x, \
                                         self.intruders[id].y):
                 self.intruders[id].entered = True
                 self.intruders[id].done = True
@@ -165,10 +139,10 @@ class GuardingTerritoryGame:
         # for d in np.arange(self.dcount):
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
-        self.defenders.append(Defender(id=0, x=-5, y=4))
-        self.defenders.append(Defender(id=1, x= 5, y=4))
+        self.defenders.append(Defender(id=0, x=-7, y=6))
+        self.defenders.append(Defender(id=1, x= 7, y=6))
         for i in np.arange(self.icount):
-            self.intruders.append(Intruder(id=i, x=0, y=7))
+            self.intruders.append(Intruder(id=i, world=self.world, x=0, y=8))
         self.active = np.arange(self.icount)
         self.captured = []
         self.entered = []
@@ -191,14 +165,19 @@ class Target:
 
 class WorldMap():
     """docstring for WorldMap."""
-    def __init__(self):
+    def __init__(self, target=Target()):
         self.x_bound = Config.WORLD_X_BOUND
         self.y_bound = Config.WORLD_Y_BOUND
         self.shape = 'Square'
+        self.target = target
+        self.max_target_level = self._get_max_target_level()
 
     def is_in_world(self, x, y):
         if self.shape == 'Square':
             return abs(x)<self.x_bound and abs(y)<self.y_bound
+
+    def _get_max_target_level(self):
+        return self.target.contour(self.x_bound, self.y_bound)
 
 class Player:
     """I am a player"""
@@ -229,7 +208,6 @@ class Player:
     def random_move(self):
         return self.action_space[rd.randint(0, self.get_num_actions()-1)]
 
-
     def reset(self, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
         self.heading = None
         self.x = x
@@ -245,13 +223,26 @@ class Defender(Player):
         self.enter_buffer = 0
         self.capture_buffer = 0
 
+    def clearup_reward(self):
+        # penalty for spending the time
+        reward = self.time_buffer * Config.PENALTY_TIME_PASS
+        # reward of capture and breaking in
+        reward += Config.REWARD_CAPTURE * self.capture_buffer
+        reward -= Config.REWARD_ENTER * self.enter_buffer
+        # clear up reward buffers
+        self.defenders[id].capture_buffer = 0
+        self.defenders[id].enter_buffer = 0
+        self.defenders[id].time_buffer = 0
+        # return
+        return reward
+
     def reset(self, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
         super().reset(x, y)
         self.total_capture = 0
 
 class Intruder(Player):
     """I am an intruder."""
-    def __init__(self, id, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
+    def __init__(self, id, world, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
         super().__init__(id, Config.INTRUDER_DYNAMIC, x, y)
         self.vmax = Config.INTRUDER_MAX_VELOCITY
         self.action_space = Config.INTRUDER_ACTION_SPACE
@@ -259,6 +250,25 @@ class Intruder(Player):
         self.captured_mem = False
         self.entered = False
         self.entered_mem = False
+        self.world = world
+        self.target_level_old = 0
+        self.target_level_new = self.world.target.contour(self.x, self.y)
+
+    def clearup_reward(self):
+        # penalty for spending the time
+        reward = - self.time_buffer * Config.PENALTY_TIME_PASS
+        self.time_buffer = 0
+        # reward for entering
+        if self.entered and not self.entered_mem:
+            reward +=  Config.REWARD_ENTER
+            self.entered_mem = True
+        # penalty for capture
+        if self.captured and not self.captured_mem:
+            reward -= Config.REWARD_CAPTURE
+        # reward for getting closer to target
+        reward += (self.target_level_old - self.target_level_new)/self.world.max_target_level
+
+        return reward
 
     def reset(self, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
         super().reset(x, y)

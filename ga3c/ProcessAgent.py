@@ -94,7 +94,7 @@ class ProcessAgent(Process):
 
         while not done:
             # moves += 1
-            print("current state:\n", self.env.current_state)
+            # print("current state:\n", self.env.current_state)
             # very first few frames
             if self.env.current_state is None:
                 self.env.intruder_step(0, 0)  # 0 == NOOP
@@ -102,6 +102,7 @@ class ProcessAgent(Process):
             prediction, value = self.predict(self.env.current_state)
             action = self.select_action(prediction)
             reward, done = self.env.intruder_step(0, action)
+            # print("reward: ", reward)
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward

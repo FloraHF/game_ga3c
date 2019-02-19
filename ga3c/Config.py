@@ -33,7 +33,7 @@ class Config:
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.1
+    TIME_STEP = 0.2
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -46,7 +46,7 @@ class Config:
     TARGET_TYPE = 'circle'
 
     # Radius of the target area
-    TARGET_RADIUS = 5
+    TARGET_RADIUS = 7
     # Center of the target area
     TARGET_CENTER = [0, 0]
 
@@ -63,12 +63,12 @@ class Config:
     INTRUDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
     # Maximum velocities
     DEFENDER_MAX_VELOCITY = 1
-    INTRUDER_MAX_VELOCITY = 1.3
+    INTRUDER_MAX_VELOCITY = 1.5
     # Maximum accelerations
     DEFENDER_MAX_ACCELERATION = 1
     INTRUDER_MAX_ACCELERATION = 1
     # Defender's capture range
-    CAPTURE_RANGE = 1
+    CAPTURE_RANGE = 2
 
     # Reward definitions
     PENALTY_TIME_PASS = -0.01
