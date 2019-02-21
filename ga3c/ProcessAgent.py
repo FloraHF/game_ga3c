@@ -36,10 +36,12 @@ from Experience import Experience
 
 
 class ProcessAgent(Process):
-    def __init__(self, id, prediction_q, training_q, episode_log_q):
+    def __init__(self, id, server, prediction_q, training_q, episode_log_q):
         super(ProcessAgent, self).__init__()
 
         self.id = id
+        self.server = server
+        # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
         self.prediction_q = prediction_q
         self.training_q = training_q
         self.episode_log_q = episode_log_q
@@ -60,7 +62,7 @@ class ProcessAgent(Process):
             r = np.clip(experiences[t].reward, Config.REWARD_MIN, Config.REWARD_MAX)
             reward_sum = discount_factor * reward_sum + r
             experiences[t].reward = reward_sum
-        return experiences[:-1]
+        return experiences
 
     def convert_data(self, experiences):
         x_ = np.array([exp.state for exp in experiences])
@@ -90,23 +92,31 @@ class ProcessAgent(Process):
         time_count = 0
         reward_sum = 0.0
 
+        moves = 0
+
         while not done:
+            # moves += 1
+            # print("current state:\n", self.env.current_state)
             # very first few frames
             if self.env.current_state is None:
-                self.env.step(0)  # 0 == NOOP
+                # print("current state is none")
+                self.env.step(self.server.type, 0, 0)  # 0 == NOOP
                 continue
-
+            # print("current state is not none")
             prediction, value = self.predict(self.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.env.step(action)
+            reward, done = self.env.step(self.server.type, 0, action)
+            # print("reward: ", reward)
             reward_sum += reward
+            if len(experiences):
+                experiences[-1].reward = reward
             exp = Experience(self.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
-            if done or time_count == Config.TIME_MAX:
-                terminal_reward = 0 if done else value
+            if done or time_count == Config.TIME_MAX+1:
+                terminal_reward = 0 if done else old_value
 
-                updated_exps = ProcessAgent._accumulate_rewards(experiences, self.discount_factor, terminal_reward)
+                updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
                 x_, r_, a_ = self.convert_data(updated_exps)
                 yield x_, r_, a_, reward_sum
 
@@ -115,6 +125,9 @@ class ProcessAgent(Process):
                 # keep the last experience for the next batch
                 experiences = [experiences[-1]]
                 reward_sum = 0.0
+
+            old_prediction = prediction
+            old_value = value
 
             time_count += 1
 
@@ -127,7 +140,10 @@ class ProcessAgent(Process):
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
+                # print(self.server.type, self.id, 'current location', "%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
+                # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
             self.episode_log_q.put((datetime.now(), total_reward, total_length))
+        # self.trj_saver.close()

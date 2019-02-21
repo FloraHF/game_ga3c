@@ -38,9 +38,9 @@ class NetworkVP:
         self.model_name = model_name
         self.num_actions = num_actions
 
-        self.img_width = Config.IMAGE_WIDTH
-        self.img_height = Config.IMAGE_HEIGHT
-        self.img_channels = Config.STACKED_FRAMES
+        self.player_count = Config.PLAYER_COUNT
+        self.player_dimension = Config.PLAYER_DIMENSION
+        self.player_channels = Config.STACKED_FRAMES
 
         self.learning_rate = Config.LEARNING_RATE_START
         self.beta = Config.BETA_START
@@ -63,11 +63,11 @@ class NetworkVP:
                 if Config.LOAD_CHECKPOINT or Config.SAVE_MODELS:
                     vars = tf.global_variables()
                     self.saver = tf.train.Saver({var.name: var for var in vars}, max_to_keep=0)
-                
+
 
     def _create_graph(self):
         self.x = tf.placeholder(
-            tf.float32, [None, self.img_height, self.img_width, self.img_channels], name='X')
+            tf.float32, [None, self.player_dimension, self.player_count, self.player_channels], name='X')
         self.y_r = tf.placeholder(tf.float32, [None], name='Yr')
 
         self.var_beta = tf.placeholder(tf.float32, name='beta', shape=[])
@@ -76,8 +76,8 @@ class NetworkVP:
         self.global_step = tf.Variable(0, trainable=False, name='step')
 
         # As implemented in A3C paper
-        self.n1 = self.conv2d_layer(self.x, 8, 16, 'conv11', strides=[1, 4, 4, 1])
-        self.n2 = self.conv2d_layer(self.n1, 4, 32, 'conv12', strides=[1, 2, 2, 1])
+        self.n1 = self.conv2d_layer(self.x, 4, 8, 'conv11', strides=[1, 4, 4, 1])
+        self.n2 = self.conv2d_layer(self.n1, 4, 8, 'conv12', strides=[1, 2, 2, 1])
         self.action_index = tf.placeholder(tf.float32, [None, self.num_actions])
         _input = self.n2
 
@@ -85,7 +85,7 @@ class NetworkVP:
         nb_elements = flatten_input_shape[1] * flatten_input_shape[2] * flatten_input_shape[3]
 
         self.flat = tf.reshape(_input, shape=[-1, nb_elements._value])
-        self.d1 = self.dense_layer(self.flat, 256, 'dense1')
+        self.d1 = self.dense_layer(self.flat, 32, 'dense1')
 
         self.logits_v = tf.squeeze(self.dense_layer(self.d1, 1, 'logits_v', func=None), axis=[1])
         self.cost_v = 0.5 * tf.reduce_sum(tf.square(self.y_r - self.logits_v), axis=0)
@@ -108,11 +108,11 @@ class NetworkVP:
             self.cost_p_2 = -1 * self.var_beta * \
                         tf.reduce_sum(tf.log(tf.maximum(self.softmax_p, self.log_epsilon)) *
                                       self.softmax_p, axis=1)
-        
+
         self.cost_p_1_agg = tf.reduce_sum(self.cost_p_1, axis=0)
         self.cost_p_2_agg = tf.reduce_sum(self.cost_p_2, axis=0)
         self.cost_p = -(self.cost_p_1_agg + self.cost_p_2_agg)
-        
+
         if Config.DUAL_RMSPROP:
             self.opt_p = tf.train.RMSPropOptimizer(
                 learning_rate=self.var_learning_rate,
@@ -136,10 +136,10 @@ class NetworkVP:
         if Config.USE_GRAD_CLIP:
             if Config.DUAL_RMSPROP:
                 self.opt_grad_v = self.opt_v.compute_gradients(self.cost_v)
-                self.opt_grad_v_clipped = [(tf.clip_by_norm(g, Config.GRAD_CLIP_NORM),v) 
+                self.opt_grad_v_clipped = [(tf.clip_by_norm(g, Config.GRAD_CLIP_NORM),v)
                                             for g,v in self.opt_grad_v if not g is None]
                 self.train_op_v = self.opt_v.apply_gradients(self.opt_grad_v_clipped)
-            
+
                 self.opt_grad_p = self.opt_p.compute_gradients(self.cost_p)
                 self.opt_grad_p_clipped = [(tf.clip_by_norm(g, Config.GRAD_CLIP_NORM),v)
                                             for g,v in self.opt_grad_p if not g is None]
@@ -228,10 +228,10 @@ class NetworkVP:
     def predict_p(self, x):
         prediction = self.sess.run(self.softmax_p, feed_dict={self.x: x})
         return prediction
-    
+
     def predict_p_and_v(self, x):
         return self.sess.run([self.softmax_p, self.logits_v], feed_dict={self.x: x})
-    
+
     def train(self, x, y_r, a, trainer_id):
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.x: x, self.y_r: y_r, self.action_index: a})
@@ -245,7 +245,7 @@ class NetworkVP:
 
     def _checkpoint_filename(self, episode):
         return 'checkpoints/%s_%08d' % (self.model_name, episode)
-    
+
     def _get_episode_from_filename(self, filename):
         # TODO: hacky way of getting the episode. ideally episode should be stored as a TF variable
         return int(re.split('/|_|\.', filename)[2])
@@ -259,7 +259,7 @@ class NetworkVP:
             filename = self._checkpoint_filename(Config.LOAD_EPISODE)
         self.saver.restore(self.sess, filename)
         return self._get_episode_from_filename(filename)
-       
+
     def get_variables_names(self):
         return [var.name for var in self.graph.get_collection('trainable_variables')]
 

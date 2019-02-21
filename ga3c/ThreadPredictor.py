@@ -43,10 +43,11 @@ class ThreadPredictor(Thread):
     def run(self):
         ids = np.zeros(Config.PREDICTION_BATCH_SIZE, dtype=np.uint16)
         states = np.zeros(
-            (Config.PREDICTION_BATCH_SIZE, Config.IMAGE_HEIGHT, Config.IMAGE_WIDTH, Config.STACKED_FRAMES),
+            (Config.PREDICTION_BATCH_SIZE, Config.PLAYER_DIMENSION, Config.PLAYER_COUNT, Config.STACKED_FRAMES),
             dtype=np.float32)
 
         while not self.exit_flag:
+            
             ids[0], states[0] = self.server.prediction_q.get()
 
             size = 1

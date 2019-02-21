@@ -24,13 +24,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import numpy as np
+import math
+
 class Config:
 
     #########################################################################
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.5
+    TIME_STEP = 0.1
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -43,7 +46,7 @@ class Config:
     TARGET_TYPE = 'circle'
 
     # Radius of the target area
-    TARGET_RADIUS = 3
+    TARGET_RADIUS = 5
     # Center of the target area
     TARGET_CENTER = [0, 0]
 
@@ -51,25 +54,26 @@ class Config:
     DEFENDER_COUNT = 2
     # Number of intruders
     INTRUDER_COUNT = 1
-    # Dynamic type of the defenders
+
+    # Dynamic types
     DEFENDER_DYNAMIC = 'simple_motion'
-    # Dynamics type of the intruders
     INTRUDER_DYNAMIC = 'simple_motion'
-    # Defender's maximum speed
+    # Action spaces
+    DEFENDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
+    INTRUDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
+    # Maximum velocities
     DEFENDER_MAX_VELOCITY = 1
-    # Intruder's maximum speed
-    INTRUDER_MAX_VELOCITY = 1.3
-    # Defender's maximum acceleration
+    INTRUDER_MAX_VELOCITY = 1.5
+    # Maximum accelerations
     DEFENDER_MAX_ACCELERATION = 1
-    # Intruder's maximum acceleration
     INTRUDER_MAX_ACCELERATION = 1
     # Defender's capture range
-    CAPTURE_RANGE = 1
+    CAPTURE_RANGE = 2
 
     # Reward definitions
-    PENALTY_TIME_PASS = -0.01
-    REWARD_CAPTURE = 0.8
-    REWARD_ENTER = 0.8
+    PENALTY_TIME_PASS = - 0.05 * TIME_STEP
+    REWARD_CAPTURE = 0.9
+    REWARD_ENTER = 0.9
 
     #########################################################################
     # Game configuration
@@ -91,11 +95,11 @@ class Config:
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 32
+    AGENTS = 5
     # Number of Predictors
-    PREDICTORS = 2
+    PREDICTORS = 1
     # Number of Trainers
-    TRAINERS = 2
+    TRAINERS = 1
 
     # Device
     DEVICE = 'gpu:0'
@@ -123,12 +127,12 @@ class Config:
     PREDICTION_BATCH_SIZE = 128
 
     # Input of the DNN
-    STACKED_FRAMES = 4
-    IMAGE_WIDTH = 84
-    IMAGE_HEIGHT = 84
+    STACKED_FRAMES = 1
+    PLAYER_COUNT = DEFENDER_COUNT + INTRUDER_COUNT
+    PLAYER_DIMENSION = 2
 
     # Total number of episodes and annealing frequency
-    EPISODES = 400000
+    EPISODES = 100
     ANNEALING_EPISODE_COUNT = 400000
 
     # Entropy regualrization hyper-parameter
@@ -166,7 +170,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 1000
+    SAVE_FREQUENCY = 500
 
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1

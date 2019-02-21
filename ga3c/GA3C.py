@@ -56,4 +56,4 @@ if Config.PLAY_MODE:
 # gym.undo_logger_setup()
 
 # Start main program
-Server().main()
+Server('intruder').main()

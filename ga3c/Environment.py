@@ -34,12 +34,14 @@ import numpy as np
 import scipy.misc as misc
 
 from Config import Config
-from GameManager import GameManager
+import GuardingTerritoryGame as GTG
 
 
 class Environment:
     def __init__(self):
-        self.game = GameManager(Config.ATARI_GAME, display=Config.PLAY_MODE)
+        self.game = GTG.GuardingTerritoryGame()
+        self.nb_frames = Config.STACKED_FRAMES
+        self.frame_q = Queue(maxsize=self.nb_frames)
         self.previous_state = None
         self.current_state = None
         self.total_reward = 0
@@ -53,23 +55,28 @@ class Environment:
         x_ = np.transpose(x_, [1, 2, 0])  # move channels
         return x_
 
-    def _update_frame_q(self, frame):
+    def _update_frame_q(self, new_state):
         if self.frame_q.full():
             self.frame_q.get()
-        image = Environment._preprocess(frame)
-        self.frame_q.put(image)
+        self.frame_q.put(new_state)
 
-    def get_num_actions(self):
-        return self.game.env.action_space.n
+    def get_num_actions(self, id=0, player='intruder'):
+        if player == 'intruder':
+            return self.game.intruders[id].get_num_actions()
+        elif player == 'defender':
+            return self.game.defenders[id].get_num_actions()
 
     def reset(self):
+        self.game.reset()
         self.total_reward = 0
         self.frame_q.queue.clear()
-        self._update_frame_q(self.game.reset())
-        self.previous_state = self.current_state = None
+        self._update_frame_q(self.game.get_state())
+        self.previous_state = None
+        self.current_state = None
 
-    def step(self, action):
-        observation, reward, done, _ = self.game.step(action)
+    def defender_step(self, id, action):
+        reward, done = self.game.defender_step(id, action)
+        observation = self.game.get_state()
 
         self.total_reward += reward
         self._update_frame_q(observation)
@@ -77,3 +84,20 @@ class Environment:
         self.previous_state = self.current_state
         self.current_state = self._get_current_state()
         return reward, done
+
+    def intruder_step(self, id, action):
+        reward, done = self.game.intruder_step(id, action)
+        observation = self.game.get_state()
+
+        self.total_reward += reward
+        self._update_frame_q(observation)
+
+        self.previous_state = self.current_state
+        self.current_state = self._get_current_state()
+
+        # print(self.current_state)
+        return reward, done
+
+    def step(self, who, id, action):
+        step_func = getattr(self, who + '_step')
+        return step_func(id, action)
