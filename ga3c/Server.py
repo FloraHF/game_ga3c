@@ -39,8 +39,9 @@ from ThreadTrainer import ThreadTrainer
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, type):
         self.stats = ProcessStats()
+        slef.type = type
 
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
@@ -59,7 +60,7 @@ class Server:
 
     def add_agent(self):
         self.agents.append(
-            ProcessAgent(len(self.agents), self.prediction_q, self.training_q, self.stats.episode_log_q))
+            ProcessAgent(len(self.agents), self.type, self.prediction_q, self.training_q, self.stats.episode_log_q))
         self.agents[-1].start()
 
     def remove_agent(self):
@@ -112,7 +113,7 @@ class Server:
         beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
 
         while self.stats.episode_count.value < Config.EPISODES:
-            
+
             step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
             self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
             self.model.beta = Config.BETA_START + beta_multiplier * step

@@ -36,11 +36,12 @@ from Experience import Experience
 
 
 class ProcessAgent(Process):
-    def __init__(self, id, prediction_q, training_q, episode_log_q):
+    def __init__(self, id, type, prediction_q, training_q, episode_log_q):
         super(ProcessAgent, self).__init__()
 
         self.id = id
-        self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
+        self.type = type
+        # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
         self.prediction_q = prediction_q
         self.training_q = training_q
         self.episode_log_q = episode_log_q
@@ -98,11 +99,11 @@ class ProcessAgent(Process):
             # print("current state:\n", self.env.current_state)
             # very first few frames
             if self.env.current_state is None:
-                self.env.intruder_step(0, 0)  # 0 == NOOP
+                self.env.step(self.type, 0, 0)  # 0 == NOOP
                 continue
             prediction, value = self.predict(self.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.env.intruder_step(0, action)
+            reward, done = self.env.step(self.type, 0, action)
             # print("reward: ", reward)
             reward_sum += reward
             if len(experiences):
@@ -137,9 +138,9 @@ class ProcessAgent(Process):
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
-                self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
+                # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
             self.episode_log_q.put((datetime.now(), total_reward, total_length))
-        self.trj_saver.close()
+        # self.trj_saver.close()
