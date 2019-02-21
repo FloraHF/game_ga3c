@@ -36,18 +36,27 @@ from Experience import Experience
 
 
 class ProcessAgent(Process):
-    def __init__(self, id, server, prediction_q, training_q, episode_log_q):
+    def __init__(self, server, type, id, prediction_q, training_q, episode_log_q):
         super(ProcessAgent, self).__init__()
 
-        self.id = id
         self.server = server
+        self.type = type
+        self.id = id
+
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
         self.prediction_q = prediction_q
         self.training_q = training_q
         self.episode_log_q = episode_log_q
 
-        self.env = Environment()
-        self.num_actions = self.env.get_num_actions()
+        self.predictor = ThreadPredictor(self)
+        self.trainer = ThreadTrainer(self)
+        self.stats = ProcessStats(self.server)
+
+        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
+        if Config.LOAD_CHECKPOINT:
+            self.stats.episode_count.value = self.model.load()
+
+        self.num_actions = self.server.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
 
         self.discount_factor = Config.DISCOUNT
@@ -72,7 +81,7 @@ class ProcessAgent(Process):
 
     def predict(self, state):
         # put the state in the prediction q
-        self.prediction_q.put((self.id, state))
+        self.prediction_q.put(state)
         # wait for the prediction to come back
         p, v = self.wait_q.get()
         return p, v
@@ -85,7 +94,7 @@ class ProcessAgent(Process):
         return action
 
     def run_episode(self):
-        self.env.reset()
+        self.server.env.reset()
         done = False
         experiences = []
 
@@ -96,21 +105,21 @@ class ProcessAgent(Process):
 
         while not done:
             # moves += 1
-            # print("current state:\n", self.env.current_state)
+            # print("current state:\n", self.server.env.current_state)
             # very first few frames
-            if self.env.current_state is None:
+            if self.server.env.current_state is None:
                 # print("current state is none")
-                self.env.step(self.server.type, 0, 0)  # 0 == NOOP
+                self.server.env.step(self.server.type, 0, 0)  # 0 == NOOP
                 continue
             # print("current state is not none")
-            prediction, value = self.predict(self.env.current_state)
+            prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.env.step(self.server.type, 0, action)
+            reward, done = self.server.env.step(self.server.type, 0, action)
             # print("reward: ", reward)
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
-            exp = Experience(self.env.previous_state, action, prediction, reward, done)
+            exp = Experience(self.server.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
@@ -136,7 +145,15 @@ class ProcessAgent(Process):
         time.sleep(np.random.rand())
         np.random.seed(np.int32(time.time() % 1 * 1000 + self.id * 10))
 
-        while self.exit_flag.value == 0:
+        self.predictor.start()
+        self.trainer.start()
+        self.stats.start()
+
+        learning_rate_multiplier = (
+                                       Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.ANNEALING_EPISODE_COUNT
+        beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
+
+        while self.stats.episode_count.value < Config.EPISODES:
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
@@ -146,4 +163,16 @@ class ProcessAgent(Process):
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
             self.episode_log_q.put((datetime.now(), total_reward, total_length))
-        # self.trj_saver.close()
+
+            step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
+            self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
+            self.model.beta = Config.BETA_START + beta_multiplier * step
+
+            if Config.SAVE_MODELS and self.stats.should_save_model.value > 0:
+                self.model.save(self.stats.episode_count.value)
+                self.stats.should_save_model.value = 0
+
+            time.sleep(0.01)
+
+        self.predictor.exit_flag = True
+        self.trainer.exit_flag = True

@@ -45,46 +45,47 @@ class Server:
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
 
-        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
-        if Config.LOAD_CHECKPOINT:
-            self.stats.episode_count.value = self.model.load()
+        self.env = Environment()
 
         self.training_step = 0
         self.frame_counter = 0
 
-        self.agents = []
-        self.predictors = []
-        self.trainers = []
-        self.stats = ProcessStats(self)
-        self.dynamic_adjustment = ThreadDynamicAdjustment(self)
+        self.defender_count = Config.DEFENDER_COUNT
+        self.intruder_count = Config.INTRUDER_COUNT
 
-    def add_agent(self):
-        self.agents.append(
-            ProcessAgent(len(self.agents), self, self.prediction_q, self.training_q, self.stats.episode_log_q))
-        self.agents[-1].start()
+        self.defenders = []
+        self.intruders = []
+        self.enable_players()
 
-    def remove_agent(self):
-        self.agents[-1].exit_flag.value = True
-        self.agents[-1].join()
-        self.agents.pop()
+    def add_defender(self):
+        self.defenders.append(
+            ProcessAgent(self, 'defender', len(self.defenders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
+        self.defender[-1].start()
 
-    def add_predictor(self):
-        self.predictors.append(ThreadPredictor(self, len(self.predictors)))
-        self.predictors[-1].start()
+    def remove_defender(self):
+        self.defenders[-1].exit_flag.value = True
+        self.defenders[-1].join()
+        self.defenders.pop()
 
-    def remove_predictor(self):
-        self.predictors[-1].exit_flag = True
-        self.predictors[-1].join()
-        self.predictors.pop()
+    def add_intruder(self):
+        self.intruders.append(
+            ProcessAgent(self, 'intruder', len(self.intruders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
+        self.intruder[-1].start()
 
-    def add_trainer(self):
-        self.trainers.append(ThreadTrainer(self, len(self.trainers)))
-        self.trainers[-1].start()
+    def remove_intruder(self):
+        self.intruders[-1].exit_flag.value = True
+        self.intruders[-1].join()
+        self.intruders.pop()
 
-    def remove_trainer(self):
-        self.trainers[-1].exit_flag = True
-        self.trainers[-1].join()
-        self.trainers.pop()
+    def enable_players(self):
+        cur_len = len(self.defenders)
+        if cur_len < self.defender_count:
+            for _ in np.arange(cur_len, self.defender_count):
+                self.add_defender()
+        cur_len = len(self.intruders)
+        if cur_len < self.intruder_count:
+            for _ in np.arange(cur_len, self.intruder_count):
+                self.add_intruder()
 
     def train_model(self, x_, r_, a_, trainer_id):
         self.model.train(x_, r_, a_, trainer_id)
@@ -97,37 +98,15 @@ class Server:
         if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
             self.model.log(x_, r_, a_)
 
-    def save_model(self):
-        self.model.save(self.stats.episode_count.value)
-
     def main(self):
-        self.stats.start()
-        self.dynamic_adjustment.start()
+
+        for i in range(len(self.intruders)):
+            i.start()
+        for d in range(leng(self.defenders)):
+            d.start()
 
         if Config.PLAY_MODE:
-            for trainer in self.trainers:
-                trainer.enabled = False
-
-        learning_rate_multiplier = (
-                                       Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.ANNEALING_EPISODE_COUNT
-        beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
-
-        while self.stats.episode_count.value < Config.EPISODES:
-
-            step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
-            self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
-            self.model.beta = Config.BETA_START + beta_multiplier * step
-
-            # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
-            if Config.SAVE_MODELS and self.stats.should_save_model.value > 0:
-                self.save_model()
-                self.stats.should_save_model.value = 0
-
-            time.sleep(0.01)
-
-        while self.agents:
-            self.remove_agent()
-        while self.predictors:
-            self.remove_predictor()
-        while self.trainers:
-            self.remove_trainer()
+            for i in range(len(self.intruders)):
+                i.trainer.enabled = False
+            for d in range(leng(self.defenders)):
+                d.trainer.enabled = False

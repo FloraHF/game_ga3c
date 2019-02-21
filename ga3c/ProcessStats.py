@@ -68,7 +68,7 @@ class ProcessStats(Process):
 
             self.start_time = time.time()
             first_time = datetime.now()
-            while True:
+            while self.episode_count.value < Config.EPISODES and not self.episode_log_q.empty():
                 episode_time, reward, length = self.episode_log_q.get()
                 results_logger.write('%s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), reward, length))
                 results_logger.flush()
