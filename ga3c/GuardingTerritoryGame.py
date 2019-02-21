@@ -239,9 +239,9 @@ class Defender(Player):
         reward += Config.REWARD_CAPTURE * self.capture_buffer
         reward -= Config.REWARD_ENTER * self.enter_buffer
         # clear up reward buffers
-        self.defenders[id].capture_buffer = 0
-        self.defenders[id].enter_buffer = 0
-        self.defenders[id].time_buffer = 0
+        self.capture_buffer = 0
+        self.enter_buffer = 0
+        self.time_buffer = 0
         # return
         return reward
 

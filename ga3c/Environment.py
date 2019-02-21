@@ -40,7 +40,6 @@ import GuardingTerritoryGame as GTG
 class Environment:
     def __init__(self):
         self.game = GTG.GuardingTerritoryGame()
-        self.players_step = { 'defender' : defender_step, 'intruder' : intruder_step}
         self.nb_frames = Config.STACKED_FRAMES
         self.frame_q = Queue(maxsize=self.nb_frames)
         self.previous_state = None
@@ -75,12 +74,6 @@ class Environment:
         self.previous_state = None
         self.current_state = None
 
-    def step(who, id, action):
-        try:
-            return players_step[who](id, action)
-        except:
-            return "Invalid function"
-
     def defender_step(self, id, action):
         reward, done = self.game.defender_step(id, action)
         observation = self.game.get_state()
@@ -104,3 +97,7 @@ class Environment:
 
         # print(self.current_state)
         return reward, done
+
+    def step(self, who, id, action):
+        step_func = getattr(self, who + '_step')
+        return step_func(id, action)

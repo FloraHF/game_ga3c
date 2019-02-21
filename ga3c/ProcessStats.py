@@ -40,8 +40,9 @@ from Config import Config
 
 
 class ProcessStats(Process):
-    def __init__(self):
+    def __init__(self, server):
         super(ProcessStats, self).__init__()
+        self.server = server
         self.episode_log_q = Queue(maxsize=100)
         self.episode_count = Value('i', 0)
         self.training_count = Value('i', 0)

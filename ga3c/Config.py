@@ -33,7 +33,7 @@ class Config:
     # Game configuration
 
     # Time step size
-    TIME_STEP = 0.02
+    TIME_STEP = 0.1
 
     # The world boundary, as a square
     WORLD_X_BOUND = 10
@@ -86,7 +86,7 @@ class Config:
     # Enable to train
     TRAIN_MODELS = True
     # Load old models. Throws if the model doesn't exist
-    LOAD_CHECKPOINT = True
+    LOAD_CHECKPOINT = False
     # If 0, the latest checkpoint is loaded
     LOAD_EPISODE = 0
 
@@ -95,7 +95,7 @@ class Config:
 
     # If the dynamic configuration is on, these are the initial values.
     # Number of Agents
-    AGENTS = 6
+    AGENTS = 5
     # Number of Predictors
     PREDICTORS = 1
     # Number of Trainers

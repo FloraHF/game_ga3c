@@ -30,11 +30,12 @@ def intruder_policy(state):
 # print(gtenv._get_current_state())
 
 for i in np.arange(5):
-    rd0, dd0 = gtenv.defender_step(0, defender_policy_0(1))
-    rd1, dd1 = gtenv.defender_step(1, defender_policy_1(1))
-    ri0, di0 = gtenv.intruder_step(0, intruder_policy(1))
-    print("state: \n", gtenv._get_current_state())
-    print("reward: ", ri0, "done: ", di0)
+    print(gtenv.step('defender', 0, defender_policy_0(1)))
+    gtenv.step('defender', 1, defender_policy_1(1))
+    gtenv.step('intruder', 0, intruder_policy(1))
+
+    # print("state: \n", gtenv._get_current_state())
+    # print("reward: ", ri0, "done: ", di0)
 
 # rd1, dd1 = gtenv.defender_step(1, defender_policy_1(gtenv._get_current_state()))
 # print(gtenv._get_current_state())

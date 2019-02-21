@@ -40,8 +40,7 @@ from ThreadTrainer import ThreadTrainer
 
 class Server:
     def __init__(self, type):
-        self.stats = ProcessStats()
-        slef.type = type
+        self.type = type
 
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
@@ -56,11 +55,12 @@ class Server:
         self.agents = []
         self.predictors = []
         self.trainers = []
+        self.stats = ProcessStats(self)
         self.dynamic_adjustment = ThreadDynamicAdjustment(self)
 
     def add_agent(self):
         self.agents.append(
-            ProcessAgent(len(self.agents), self.type, self.prediction_q, self.training_q, self.stats.episode_log_q))
+            ProcessAgent(len(self.agents), self, self.prediction_q, self.training_q, self.stats.episode_log_q))
         self.agents[-1].start()
 
     def remove_agent(self):
