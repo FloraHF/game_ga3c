@@ -50,7 +50,7 @@ class ProcessAgent(Process):
 
         self.predictor = ThreadPredictor(self)
         self.trainer = ThreadTrainer(self)
-        self.stats = ProcessStats(self.server)
+        self.stats = ProcessStats(self)
 
         self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
         if Config.LOAD_CHECKPOINT:
@@ -58,6 +58,9 @@ class ProcessAgent(Process):
 
         self.num_actions = self.server.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
+
+        self.training_step = 0
+        self.frame_counter = 0
 
         self.discount_factor = Config.DISCOUNT
         # one frame at a time
@@ -92,6 +95,16 @@ class ProcessAgent(Process):
         else:
             action = np.random.choice(self.actions, p=prediction)
         return action
+
+    def train_model(self, x_, r_, a_):
+        self.model.train(x_, r_, a_)
+        self.training_step += 1
+        self.frame_counter += x_.shape[0]
+
+        self.stats.training_count.value += 1
+
+        if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
+            self.model.log(x_, r_, a_)
 
     def run_episode(self):
         self.server.env.reset()

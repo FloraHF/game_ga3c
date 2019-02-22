@@ -33,17 +33,12 @@ from Environment import Environment
 from NetworkVP import NetworkVP
 from ProcessAgent import ProcessAgent
 from ProcessStats import ProcessStats
-from ThreadDynamicAdjustment import ThreadDynamicAdjustment
 from ThreadPredictor import ThreadPredictor
 from ThreadTrainer import ThreadTrainer
 
 
 class Server:
     def __init__(self, type):
-        self.type = type
-
-        self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
-        self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
 
         self.env = Environment()
 
@@ -62,20 +57,10 @@ class Server:
             ProcessAgent(self, 'defender', len(self.defenders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
         self.defender[-1].start()
 
-    def remove_defender(self):
-        self.defenders[-1].exit_flag.value = True
-        self.defenders[-1].join()
-        self.defenders.pop()
-
     def add_intruder(self):
         self.intruders.append(
             ProcessAgent(self, 'intruder', len(self.intruders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
         self.intruder[-1].start()
-
-    def remove_intruder(self):
-        self.intruders[-1].exit_flag.value = True
-        self.intruders[-1].join()
-        self.intruders.pop()
 
     def enable_players(self):
         cur_len = len(self.defenders)
@@ -86,17 +71,6 @@ class Server:
         if cur_len < self.intruder_count:
             for _ in np.arange(cur_len, self.intruder_count):
                 self.add_intruder()
-
-    def train_model(self, x_, r_, a_, trainer_id):
-        self.model.train(x_, r_, a_, trainer_id)
-        self.training_step += 1
-        self.frame_counter += x_.shape[0]
-
-        self.stats.training_count.value += 1
-        self.dynamic_adjustment.temporal_training_count += 1
-
-        if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
-            self.model.log(x_, r_, a_)
 
     def main(self):
 

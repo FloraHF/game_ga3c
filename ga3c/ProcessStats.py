@@ -40,9 +40,9 @@ from Config import Config
 
 
 class ProcessStats(Process):
-    def __init__(self, server):
+    def __init__(self, player):
         super(ProcessStats, self).__init__()
-        self.server = server
+        self.player = player
         self.episode_log_q = Queue(maxsize=100)
         self.episode_count = Value('i', 0)
         self.training_count = Value('i', 0)
@@ -61,7 +61,7 @@ class ProcessStats(Process):
         return np.ceil(self.training_count.value / (time.time() - self.start_time))
 
     def run(self):
-        with open(Config.RESULTS_FILENAME, 'a') as results_logger:
+        with open(Config.RESULTS_FILENAME + self.player.type + str(self.player.id) + '.txt', 'a') as results_logger:
             rolling_frame_count = 0
             rolling_reward = 0
             results_q = queueQueue(maxsize=Config.STAT_ROLLING_MEAN_WINDOW)

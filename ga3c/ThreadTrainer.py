@@ -52,4 +52,4 @@ class ThreadTrainer(Thread):
                 batch_size += x_.shape[0]
 
             if Config.TRAIN_MODELS:
-                self.player.model.train_model(x__, r__, a__)
+                self.player.train_model(x__, r__, a__)
