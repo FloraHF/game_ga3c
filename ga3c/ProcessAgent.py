@@ -42,9 +42,20 @@ class ProcessAgent(Process):
         self.id = id
         self.server = server
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
-        self.prediction_q = prediction_q
-        self.training_q = training_q
-        self.episode_log_q = episode_log_q
+
+        self.defenders = []
+        self.intruders = []
+        self.defender_prediction_qs = []
+        self.intruder_prediction_qs = []
+        self.defender_wait_qs = []
+        self.intruder_wait_qs = []
+
+        for d in range(Config.DEFENDER_COUNT):
+            self.defenders.append()
+            self.defender_prediction_qs.append(Queue(maxsize=Config.MAX_QUEUE_SIZE))
+        for i in range(Config.INTRUDER_COUNT):
+            self.intruders.append()
+            self.intruder_prediction_qs.append(Queue(maxsize=Config.MAX_QUEUE_SIZE))
 
         self.env = Environment()
         self.num_actions = self.env.get_num_actions()
@@ -52,7 +63,6 @@ class ProcessAgent(Process):
 
         self.discount_factor = Config.DISCOUNT
         # one frame at a time
-        self.wait_q = Queue(maxsize=1)
         self.exit_flag = Value('i', 0)
 
     @staticmethod
@@ -70,11 +80,13 @@ class ProcessAgent(Process):
         r_ = np.array([exp.reward for exp in experiences])
         return x_, r_, a_
 
-    def predict(self, state):
+    def predict(self, who, id, state):
         # put the state in the prediction q
-        self.prediction_q.put((self.id, state))
+        prediction_q = getattr(who+'_prediction_qs')
+        wait_q = getattr(who+'_wait_qs')
+        prediction_q[id].put(state)
         # wait for the prediction to come back
-        p, v = self.wait_q.get()
+        p, v = wait_q[id].get()
         return p, v
 
     def select_action(self, prediction):
@@ -98,6 +110,11 @@ class ProcessAgent(Process):
             # moves += 1
             # print("current state:\n", self.env.current_state)
             # very first few frames
+            prediction = []
+            value = []
+            action = []
+            reward = []
+            done = []
             if self.env.current_state is None:
                 # print("current state is none")
                 self.env.step(self.server.type, 0, 0)  # 0 == NOOP
