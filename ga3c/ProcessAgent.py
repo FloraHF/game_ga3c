@@ -32,11 +32,15 @@ import time
 
 from Config import Config
 from Environment import Environment
+from NetworkVP import NetworkVP
 from Experience import Experience
+from ThreadPredictor import ThreadPredictor
+from ThreadTrainer import ThreadTrainer
+from ProcessStats import ProcessStats
 
 
 class ProcessAgent(Process):
-    def __init__(self, server, type, id, prediction_q, training_q, episode_log_q):
+    def __init__(self, server, type, id):
         super(ProcessAgent, self).__init__()
 
         self.server = server
@@ -44,9 +48,9 @@ class ProcessAgent(Process):
         self.id = id
 
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
-        self.prediction_q = prediction_q
-        self.training_q = training_q
-        self.episode_log_q = episode_log_q
+        self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.episode_log_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
 
         self.predictor = ThreadPredictor(self)
         self.trainer = ThreadTrainer(self)
@@ -85,6 +89,7 @@ class ProcessAgent(Process):
     def predict(self, state):
         # put the state in the prediction q
         self.prediction_q.put(state)
+        print(self.prediction_q.empty())
         # wait for the prediction to come back
         p, v = self.wait_q.get()
         return p, v
@@ -117,25 +122,22 @@ class ProcessAgent(Process):
         moves = 0
 
         while not done:
-            # moves += 1
-            # print("current state:\n", self.server.env.current_state)
+            moves += 1
             # very first few frames
             if self.server.env.current_state is None:
-                # print("current state is none")
-                self.server.env.step(self.server.type, 0, 0)  # 0 == NOOP
+                self.server.env.step(self.type, 0, 0)  # 0 == NOOP
                 continue
-            # print("current state is not none")
+            # print(self.type, self.id, moves, "move: current state: ", self.server.env.current_state)
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.server.env.step(self.server.type, 0, action)
-            # print("reward: ", reward)
+            reward, done = self.server.env.step(self.type, self.id, action)
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
             exp = Experience(self.server.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
-            if done or time_count == Config.TIME_MAX+1:
+            if done or time_count == Config.TIME_MAX:
                 terminal_reward = 0 if done else old_value
 
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
@@ -166,16 +168,20 @@ class ProcessAgent(Process):
                                        Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.ANNEALING_EPISODE_COUNT
         beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
 
+        # print(self.type, self.id, 'is running')
         while self.stats.episode_count.value < Config.EPISODES:
+            # print(self.type, self.id, self.stats.episode_count.value, 'th episode')
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
-                # print(self.server.type, self.id, 'current location', "%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
+                print(self.type, self.id, 'total reward:', total_reward)
                 # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
+
             self.episode_log_q.put((datetime.now(), total_reward, total_length))
+            # print(self.type, self.id, 'current location', "%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
 
             step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
             self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step

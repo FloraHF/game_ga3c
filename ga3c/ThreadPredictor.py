@@ -46,9 +46,8 @@ class ThreadPredictor(Thread):
             dtype=np.float32)
 
         while not self.exit_flag:
-
+            
             states[0] = self.player.prediction_q.get()
-
             size = 1
             while size < Config.PREDICTION_BATCH_SIZE and not self.player.prediction_q.empty():
                 states[size] = self.player.prediction_q.get()

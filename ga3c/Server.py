@@ -32,13 +32,10 @@ from Config import Config
 from Environment import Environment
 from NetworkVP import NetworkVP
 from ProcessAgent import ProcessAgent
-from ProcessStats import ProcessStats
-from ThreadPredictor import ThreadPredictor
-from ThreadTrainer import ThreadTrainer
 
 
 class Server:
-    def __init__(self, type):
+    def __init__(self):
 
         self.env = Environment()
 
@@ -50,34 +47,30 @@ class Server:
 
         self.defenders = []
         self.intruders = []
-        self.enable_players()
 
     def add_defender(self):
         self.defenders.append(
-            ProcessAgent(self, 'defender', len(self.defenders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
-        self.defender[-1].start()
+            ProcessAgent(self, 'defender', len(self.defenders)))
+        self.defenders[-1].start()
 
     def add_intruder(self):
         self.intruders.append(
-            ProcessAgent(self, 'intruder', len(self.intruders), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE), Queue(maxsize=Config.MAX_QUEUE_SIZE)))
-        self.intruder[-1].start()
+            ProcessAgent(self, 'intruder', len(self.intruders)))
+        self.intruders[-1].start()
 
     def enable_players(self):
         cur_len = len(self.defenders)
         if cur_len < self.defender_count:
-            for _ in np.arange(cur_len, self.defender_count):
+            for _ in range(cur_len, self.defender_count):
                 self.add_defender()
         cur_len = len(self.intruders)
         if cur_len < self.intruder_count:
-            for _ in np.arange(cur_len, self.intruder_count):
+            for _ in range(cur_len, self.intruder_count):
                 self.add_intruder()
 
     def main(self):
 
-        for i in range(len(self.intruders)):
-            i.start()
-        for d in range(leng(self.defenders)):
-            d.start()
+        self.enable_players()
 
         if Config.PLAY_MODE:
             for i in range(len(self.intruders)):

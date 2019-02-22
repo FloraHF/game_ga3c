@@ -32,6 +32,7 @@ else:
 
 from datetime import datetime
 from multiprocessing import Process, Queue, Value
+from threading import Thread
 
 import numpy as np
 import time
@@ -39,7 +40,7 @@ import time
 from Config import Config
 
 
-class ProcessStats(Process):
+class ProcessStats(Thread):
     def __init__(self, player):
         super(ProcessStats, self).__init__()
         self.player = player
