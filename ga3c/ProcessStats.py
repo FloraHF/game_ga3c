@@ -50,11 +50,10 @@ class ProcessStats(Process):
         self.trainer_count = Value('i', 0)
         self.predictor_count = Value('i', 0)
         self.agent_count = Value('i', 0)
-        self.total_frame_count = 0
 
     def run(self):
         with open(Config.RESULTS_FILENAME, 'a') as results_logger:
-            rolling_frame_count = 0
+
             rolling_reward = 0
             results_q = queueQueue(maxsize=Config.STAT_ROLLING_MEAN_WINDOW)
 
@@ -62,18 +61,14 @@ class ProcessStats(Process):
             first_time = datetime.now()
             while True:
                 episode_time, player, pid, reward, length = self.episode_log_q.get()
-                results_logger.write('%s, %d, %d, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), player, id, reward, length))
+                results_logger.write('%s, %s, %s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), player, id, reward, length))
                 results_logger.flush()
 
-                self.total_frame_count += length
                 self.episode_count.value += 1
-
-                rolling_frame_count += length
                 rolling_reward += reward
 
                 if results_q.full():
                     old_episode_time, old_player, old_pid, old_reward, old_length = results_q.get()
-                    rolling_frame_count -= old_length
                     rolling_reward -= old_reward
                     first_time = old_episode_time
 
@@ -84,15 +79,8 @@ class ProcessStats(Process):
 
                 if self.episode_count.value % Config.PRINT_STATS_FREQUENCY == 0:
                     print(
-                        '[Time: %8d] '
-                        '[Player: %d]'
-                        '[Episode: %8d Score: %10.4f] '
-                        '[RScore: %10.4f RPPS: %5d] '
-                        '[NT: %2d NP: %2d NA: %2d]'
-                        % (int(time.time()-self.start_time),
-                           pid, 
-                           self.episode_count.value, reward,
-                           rolling_reward / results_q.qsize(),
-                           rolling_frame_count / (datetime.now() - first_time).total_seconds(),
-                           self.trainer_count.value, self.predictor_count.value, self.agent_count.value))
+                        '[Time: %8d Episode: %8d] '
+                        '[%s %s\'s Score: %10.4f RScore: %10.4f] '
+                        % (int(time.time()-self.start_time), self.episode_count.value,
+                           player, pid, reward, rolling_reward / results_q.qsize()))
                     sys.stdout.flush()

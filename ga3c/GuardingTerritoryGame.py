@@ -40,6 +40,15 @@ class GuardingTerritoryGame:
                                           [self.intruders[i].y]])))
         return x_
 
+    def is_game_done(self):
+        # game is over when all players are done
+        done = True
+        for i in self.intruders:
+            done = done and i.done
+        for d in self.defenders:
+            done = done and d.done
+        return done
+
     def _update_intruders(self):
         # captured
         new_captured = []
@@ -75,7 +84,8 @@ class GuardingTerritoryGame:
             # try to take an action, but can't enter the target
             new_x, new_y = self.defenders[id].try_step(action)
             num_trial = 0
-            while self.world.target.is_in_target(new_x, new_y) and \
+            while (self.world.target.is_in_target(new_x, new_y) or \
+                  (not self.world.is_in_world(new_x, new_y))) and \
                     num_trial < 2*self.defenders[id].get_num_actions():
                 new_x, new_y = self.defenders[id].try_step(self.defenders[id].random_move())
                 num_trial += 1
@@ -111,7 +121,6 @@ class GuardingTerritoryGame:
                 self.intruders[id].y = new_y
             # identify how close it is from target
             self.intruders[id].target_level_new = self.world.target.contour(self.intruders[id].x, self.intruders[id].y)
-
             for d in self.defenders:
                 if self._is_captured(d, self.intruders[id]):
                     self.intruders[id].captured = True

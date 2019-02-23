@@ -77,6 +77,10 @@ class Environment:
     def defender_step(self, id, action):
         reward, done = self.game.defender_step(id, action)
         observation = self.game.get_state()
+        if id == 1:
+            print(self.game.defenders[0].x, self.game.defenders[0].y,)
+            print(self.game.defenders[1].x, self.game.defenders[1].y,)
+            print(self.game.intruders[0].x, self.game.intruders[0].y,)
 
         self.total_reward += reward
         self._update_frame_q(observation)
@@ -88,6 +92,7 @@ class Environment:
     def intruder_step(self, id, action):
         reward, done = self.game.intruder_step(id, action)
         observation = self.game.get_state()
+        # print('intruder', id, observation)
 
         self.total_reward += reward
         self._update_frame_q(observation)
@@ -100,4 +105,6 @@ class Environment:
 
     def step(self, who, id, action):
         step_func = getattr(self, who + '_step')
-        return step_func(id, action)
+        reward, _ = step_func(id, action)
+        done  = self.game.is_game_done()
+        return reward, done

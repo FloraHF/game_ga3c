@@ -123,14 +123,17 @@ class ProcessAgent(Process):
             # print(self.type, self.id, moves, 'th move')
             # very first few frames
             if self.server.env.current_state is None:
-                # print("current state is none")
                 self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
                 continue
-            # print("current state is not none")
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
             reward, done = self.server.env.step(self.type, self.id, action)
-            # print("reward: ", reward)
+            # print(self.server.env.previous_state)
+            _x = self.server.env.previous_state
+            if self.type == 'intruder' and self.id == 0:
+                pid = self.id
+                # print(self.type, self.id, 'current location', self.server.env.game.intruders[0].x)
+                # print(_x)
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
@@ -138,7 +141,7 @@ class ProcessAgent(Process):
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
-                print(self.type, self.id, done)
+                # print(self.type, self.id, done)
                 terminal_reward = 0 if done else old_value
 
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
@@ -165,7 +168,6 @@ class ProcessAgent(Process):
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
-                # print(self.server.type, self.id, 'current location', "%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
