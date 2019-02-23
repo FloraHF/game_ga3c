@@ -26,6 +26,7 @@
 
 from datetime import datetime
 from multiprocessing import Process, Queue, Value
+from threading import Thread
 
 import numpy as np
 import time
@@ -38,7 +39,7 @@ from ThreadPredictor import ThreadPredictor
 from NetworkVP import NetworkVP
 
 
-class ProcessAgent(Process):
+class ProcessAgent(Thread):
     def __init__(self, id, type, server, episode_log_q):
         super(ProcessAgent, self).__init__()
 
@@ -66,8 +67,8 @@ class ProcessAgent(Process):
         self.actions = np.arange(self.num_actions)
 
         self.discount_factor = Config.DISCOUNT
-        # one frame at a time
-        self.exit_flag = Value('i', 0)
+
+        self.exit_flag = False
 
     @staticmethod
     def _accumulate_rewards(experiences, discount_factor, terminal_reward):
@@ -129,11 +130,13 @@ class ProcessAgent(Process):
             action = self.select_action(prediction)
             reward, done = self.server.env.step(self.type, self.id, action)
             # print(self.server.env.previous_state)
-            _x = self.server.env.previous_state
-            if self.type == 'intruder' and self.id == 0:
-                pid = self.id
-                # print(self.type, self.id, 'current location', self.server.env.game.intruders[0].x)
-                # print(_x)
+            # _x = self.server.env.previous_state
+            # if self.type == 'defender':
+            #     pid = self.id
+            #     print(self.type, self.id, 'current location', _x[0][pid][0], _x[1][pid][0])
+            # if self.type == 'intruder':
+            #     pid = self.id + len(self.server.env.game.defenders)
+            #     print(self.type, self.id, 'current location', _x[0][pid][0], _x[1][pid][0])
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
@@ -141,7 +144,7 @@ class ProcessAgent(Process):
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
-                # print(self.type, self.id, done)
+                print(self.type, self.id, done)
                 terminal_reward = 0 if done else old_value
 
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
@@ -164,7 +167,7 @@ class ProcessAgent(Process):
         time.sleep(np.random.rand())
         np.random.seed(np.int32(time.time() % 1 * 1000 + self.id * 10))
 
-        while self.exit_flag.value == 0:
+        while not self.exit_flag.value:
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():

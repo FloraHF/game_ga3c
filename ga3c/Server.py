@@ -67,6 +67,18 @@ class Server:
                 player[-1].predictor.start()
                 player[-1].trainer.start()
 
+    def disable_players(self, who):
+        player = getattr(self, who+'s')
+        count = getattr(self, who+'_count')
+        for pid in reversed(range(len(player))):
+            player[pid].predictor.exit_flag = True
+            player[pid].predictor.join()
+            player[pid].trainer.exit_flag = True
+            player[pid].trainer.join()
+            player[pid].exit_flag = True
+            player.pop()
+
+
     def save_model(self):
         for i in self.intruders:
             i.model.save(self.stats.episode_count.value)
@@ -83,7 +95,6 @@ class Server:
                 i.trainer.enabled = False
             for d in self.defenders:
                 d.trainer.enabled = False
-
 
         while self.stats.episode_count.value < Config.EPISODES:
 
@@ -111,9 +122,7 @@ class Server:
 
             time.sleep(0.01)
 
-        while self.agents:
-            self.remove_agent()
-        while self.predictors:
-            self.remove_predictor()
-        while self.trainers:
-            self.remove_trainer()
+        self.disable_players('intruder')
+        self.disable_players('defender')
+
+        self.stats.exit_flag = True

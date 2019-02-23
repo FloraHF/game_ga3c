@@ -77,10 +77,6 @@ class Environment:
     def defender_step(self, id, action):
         reward, done = self.game.defender_step(id, action)
         observation = self.game.get_state()
-        if id == 1:
-            print(self.game.defenders[0].x, self.game.defenders[0].y,)
-            print(self.game.defenders[1].x, self.game.defenders[1].y,)
-            print(self.game.intruders[0].x, self.game.intruders[0].y,)
 
         self.total_reward += reward
         self._update_frame_q(observation)

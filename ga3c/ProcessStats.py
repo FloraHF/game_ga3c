@@ -50,6 +50,7 @@ class ProcessStats(Process):
         self.trainer_count = Value('i', 0)
         self.predictor_count = Value('i', 0)
         self.agent_count = Value('i', 0)
+        self.exit_flag = False
 
     def run(self):
         with open(Config.RESULTS_FILENAME, 'a') as results_logger:
@@ -59,7 +60,7 @@ class ProcessStats(Process):
 
             self.start_time = time.time()
             first_time = datetime.now()
-            while True:
+            while not self.exit_flag:
                 episode_time, player, pid, reward, length = self.episode_log_q.get()
                 results_logger.write('%s, %s, %s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), player, id, reward, length))
                 results_logger.flush()

@@ -42,7 +42,7 @@ class ThreadTrainer(Thread):
         while not self.exit_flag:
             batch_size = 0
             while batch_size <= Config.TRAINING_MIN_BATCH_SIZE:
-                x_, r_, a_ = self.player .training_q.get()
+                x_, r_, a_ = self.player.training_q.get()
                 if batch_size == 0:
                     x__ = x_; r__ = r_; a__ = a_
                 else:
