@@ -33,32 +33,36 @@ import time
 from Config import Config
 from Environment import Environment
 from Experience import Experience
+from ThreadTrainer import ThreadTrainer
+from ThreadPredictor import ThreadPredictor
+from NetworkVP import NetworkVP
 
 
 class ProcessAgent(Process):
-    def __init__(self, id, server, prediction_q, training_q, episode_log_q):
+    def __init__(self, id, type, server, episode_log_q):
         super(ProcessAgent, self).__init__()
 
         self.id = id
+        self.type = type
         self.server = server
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
 
-        self.defenders = []
-        self.intruders = []
-        self.defender_prediction_qs = []
-        self.intruder_prediction_qs = []
-        self.defender_wait_qs = []
-        self.intruder_wait_qs = []
+        self.training_step = 0
+        self.frame_counter = 0
 
-        for d in range(Config.DEFENDER_COUNT):
-            self.defenders.append()
-            self.defender_prediction_qs.append(Queue(maxsize=Config.MAX_QUEUE_SIZE))
-        for i in range(Config.INTRUDER_COUNT):
-            self.intruders.append()
-            self.intruder_prediction_qs.append(Queue(maxsize=Config.MAX_QUEUE_SIZE))
+        self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.episode_log_q = episode_log_q
+        self.wait_q = Queue(maxsize=1)
 
-        self.env = Environment()
-        self.num_actions = self.env.get_num_actions()
+        self.predictor = ThreadPredictor(self)
+        self.trainer = ThreadTrainer(self)
+
+        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
+        if Config.LOAD_CHECKPOINT:
+            self.stats.episode_count.value = self.model.load()
+
+        self.num_actions = self.server.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
 
         self.discount_factor = Config.DISCOUNT
@@ -80,13 +84,11 @@ class ProcessAgent(Process):
         r_ = np.array([exp.reward for exp in experiences])
         return x_, r_, a_
 
-    def predict(self, who, id, state):
+    def predict(self, state):
         # put the state in the prediction q
-        prediction_q = getattr(who+'_prediction_qs')
-        wait_q = getattr(who+'_wait_qs')
-        prediction_q[id].put(state)
+        self.prediction_q.put(state)
         # wait for the prediction to come back
-        p, v = wait_q[id].get()
+        p, v = self.wait_q.get()
         return p, v
 
     def select_action(self, prediction):
@@ -96,8 +98,18 @@ class ProcessAgent(Process):
             action = np.random.choice(self.actions, p=prediction)
         return action
 
+    def train_model(self, x_, r_, a_):
+        self.model.train(x_, r_, a_)
+        self.training_step += 1
+        self.frame_counter += x_.shape[0]
+
+        self.server.stats.training_count.value += 1
+
+        if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
+            self.model.log(x_, r_, a_)
+
     def run_episode(self):
-        self.env.reset()
+        self.server.env.reset()
         done = False
         experiences = []
 
@@ -108,29 +120,25 @@ class ProcessAgent(Process):
 
         while not done:
             # moves += 1
-            # print("current state:\n", self.env.current_state)
+            # print(self.type, self.id, moves, 'th move')
             # very first few frames
-            prediction = []
-            value = []
-            action = []
-            reward = []
-            done = []
-            if self.env.current_state is None:
+            if self.server.env.current_state is None:
                 # print("current state is none")
-                self.env.step(self.server.type, 0, 0)  # 0 == NOOP
+                self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
                 continue
             # print("current state is not none")
-            prediction, value = self.predict(self.env.current_state)
+            prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.env.step(self.server.type, 0, action)
+            reward, done = self.server.env.step(self.type, self.id, action)
             # print("reward: ", reward)
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
-            exp = Experience(self.env.previous_state, action, prediction, reward, done)
+            exp = Experience(self.server.env.previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
+                print(self.type, self.id, done)
                 terminal_reward = 0 if done else old_value
 
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
@@ -162,5 +170,5 @@ class ProcessAgent(Process):
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
-            self.episode_log_q.put((datetime.now(), total_reward, total_length))
+            self.episode_log_q.put((datetime.now(), self.type, self.id, total_reward, total_length))
         # self.trj_saver.close()

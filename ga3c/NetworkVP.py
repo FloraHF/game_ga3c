@@ -232,7 +232,7 @@ class NetworkVP:
     def predict_p_and_v(self, x):
         return self.sess.run([self.softmax_p, self.logits_v], feed_dict={self.x: x})
 
-    def train(self, x, y_r, a, trainer_id):
+    def train(self, x, y_r, a):
         feed_dict = self.__get_base_feed_dict()
         feed_dict.update({self.x: x, self.y_r: y_r, self.action_index: a})
         self.sess.run(self.train_op, feed_dict=feed_dict)
