@@ -17,16 +17,6 @@ class GuardingTerritoryGame:
         self.defender_default_action = -3
         self.intruder_default_action = -3 # TODO randomize func, in Player
 
-        # defenders and intruders
-        self.defenders = [] # all the defender objectives
-        self.intruders = [] # all the intruder objectives
-        self.active = []    # indices of active intruders
-                            # (self.active = intruders[self.active].id)
-        self.captured = []  # indices of captured intruders
-                            # (self.captured = intruders[self.captured].id)
-        self.entered = []   # indicesof entered intruders
-                            # (self.entered = intruders[self.entered].id)
-
         self.reset()
 
     def get_state(self):
@@ -156,8 +146,16 @@ class GuardingTerritoryGame:
         return not (np.sqrt((d.x - i.x)**2 + (d.y - i.y)**2) - d.capture_range) > 0
 
     def reset(self):
-        self.defenders = []
-        self.intruders = []
+        # defenders and intruders
+        self.defenders = [] # all the defender objectives
+        self.intruders = [] # all the intruder objectives
+        self.active = []    # indices of active intruders
+                            # (self.active = intruders[self.active].id)
+        self.captured = []  # indices of captured intruders
+                            # (self.captured = intruders[self.captured].id)
+        self.entered = []   # indicesof entered intruders
+                            # (self.entered = intruders[self.entered].id)
+                            
         # for d in np.arange(self.dcount):
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
@@ -168,8 +166,6 @@ class GuardingTerritoryGame:
         for a in range(self.icount):
             self.active.append(a)
         print('game reset, active intruders:', self.active)
-        self.captured = []
-        self.entered = []
 
 #################################################################################
 ################################# CLASS WORLDMAP ################################
