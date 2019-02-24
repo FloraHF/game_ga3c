@@ -38,6 +38,7 @@ class GuardingTerritoryGame:
         for i in self.active:
             x_ = np.hstack((x_, np.array([[self.intruders[i].x], \
                                           [self.intruders[i].y]])))
+
         return x_
 
     def is_game_done(self):
@@ -52,22 +53,27 @@ class GuardingTerritoryGame:
     def _update_intruders(self):
         # captured
         new_captured = []
+        old_active = self.active
         for i in range(len(self.active)):
             if self.intruders[self.active[i]].captured == True:
                 self.captured.append(self.active[i])
                 new_captured.append(i)
-        if not len(new_captured):
+        if len(new_captured):
+            print('new captured', new_captured)
             for cap in reversed(new_captured):
                 self.active.pop(cap)
+                print('remove', cap, 'from', old_active, 'remains:', self.active)
         # entered
         new_entered = []
         for i in range(len(self.active)):
             if self.intruders[self.active[i]].entered == True:
                 self.entered.append(self.active[i])
                 new_entered.append(i)
-        if not len(new_entered):
+        if len(new_entered):
+            print('new entered', new_entered)
             for ent in reversed(new_entered):
                 self.active.pop(ent)
+                print('remove', ent, 'from', old_active, 'remains:', self.active)
         # if no active intruders, done
         if not len(self.active):
             for d in self.defenders:
@@ -75,6 +81,10 @@ class GuardingTerritoryGame:
 
     def defender_step(self, id, action):
         # settle up reward of the last action
+        for i in [self.intruders[active] for active in self.active]:
+            self.defenders[id].capture_level_buffer += \
+            self.defenders[id].capture_level(i.x, i.y)/self.defenders[id].capture_level(self.world.x_bound, self.world.y_bound)
+
         reward = self.defenders[id].clearup_reward()
 
         # if done, return
@@ -93,13 +103,13 @@ class GuardingTerritoryGame:
                 self.defenders[id].x = new_x
                 self.defenders[id].y = new_y
             # check if any active intruder is captured
-            for i in [self.intruders[act] for act in self.active]:
+            for i in [self.intruders[active] for active in self.active]:
                 if self._is_captured(self.defenders[id], i) and (not i.captured):
                     i.captured = True
                     i.done = True
                     self.defenders[id].capture_buffer += 1
             self._update_intruders()
-
+        # print('defender', id, 'done:', self.defenders[id].done)
         return reward, self.defenders[id].done
 
     def intruder_step(self, id, action):
@@ -122,6 +132,7 @@ class GuardingTerritoryGame:
             # identify how close it is from target
             self.intruders[id].target_level_new = self.world.target.contour(self.intruders[id].x, self.intruders[id].y)
             for d in self.defenders:
+                d.intruder_target_level_buffer += self.intruders[id].target_level_new
                 if self._is_captured(d, self.intruders[id]):
                     self.intruders[id].captured = True
                     self.intruders[id].captured_mem = True
@@ -135,12 +146,14 @@ class GuardingTerritoryGame:
                 for d in self.defenders:
                     d.enter_buffer += 1
 
+        self._update_intruders()
+
+        print('intruder', id, 'capture:', self.intruders[id].captured, 'entered:', self.intruders[id].entered, 'active intrusers', len(self.active))
+
         return reward, self.intruders[id].done
 
     def _is_captured(self, d, i):
-        return not np.sqrt((d.x - i.x)**2 + \
-                        (d.y - i.y)**2) - \
-                        d.capture_range > 0
+        return not (np.sqrt((d.x - i.x)**2 + (d.y - i.y)**2) - d.capture_range) > 0
 
     def reset(self):
         self.defenders = []
@@ -152,7 +165,9 @@ class GuardingTerritoryGame:
         self.defenders.append(Defender(id=1, x= 3, y=6))
         for i in np.arange(self.icount):
             self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
-        self.active = np.arange(self.icount)
+        for a in range(self.icount):
+            self.active.append(a)
+        print('game reset, active intruders:', self.active)
         self.captured = []
         self.entered = []
 
@@ -238,19 +253,28 @@ class Defender(Player):
         self.vmax = Config.DEFENDER_MAX_VELOCITY
         self.action_space = Config.DEFENDER_ACTION_SPACE
         self.capture_range = Config.CAPTURE_RANGE
+        self.capture_level_buffer = 0
         self.enter_buffer = 0
         self.capture_buffer = 0
+        self.intruder_target_level_buffer = 0
+
+    def capture_level(self, x, y):
+        return np.sqrt((x - self.x)**2 + (y - self.y)**2) - self.capture_range
 
     def clearup_reward(self):
         # penalty for spending the time
         reward = self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
         # reward of capture and breaking in
+        reward -= self.capture_level_buffer
         reward += Config.REWARD_CAPTURE * self.capture_buffer
         reward -= Config.REWARD_ENTER * self.enter_buffer
+        reward -= self.intruder_target_level_buffer
         # clear up reward buffers
+        self.capture_level_buffer = 0
         self.capture_buffer = 0
         self.enter_buffer = 0
         self.time_buffer = 0
+        self.intruder_target_level_buffer = 0
         # return
         return reward
 

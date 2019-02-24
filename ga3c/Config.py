@@ -181,7 +181,7 @@ class Config:
     # Results filename
     RESULTS_FILENAME = 'results.txt'
     # Network checkpoint name
-    NETWORK_NAME = 'network'
+    NETWORK_NAME = 'network_'
 
     #########################################################################
     # More experimental parameters here

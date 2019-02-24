@@ -60,7 +60,7 @@ class ProcessStats(Process):
 
             self.start_time = time.time()
             first_time = datetime.now()
-            while not self.exit_flag:
+            while not (self.exit_flag and self.episode_log_q.empty()):
                 episode_time, player, pid, reward, length = self.episode_log_q.get()
                 results_logger.write('%s, %s, %s, %d, %d\n' % (episode_time.strftime("%Y-%m-%d %H:%M:%S"), player, id, reward, length))
                 results_logger.flush()

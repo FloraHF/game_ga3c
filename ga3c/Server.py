@@ -39,8 +39,7 @@ from ThreadTrainer import ThreadTrainer
 
 
 class Server:
-    def __init__(self, type):
-        self.type = type
+    def __init__(self):
 
         self.env = Environment()
 

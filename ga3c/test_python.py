@@ -9,8 +9,7 @@
 # plt.show()
 
 import numpy as np
-x = np.zeros((2,3,1))
-x[1][2][0] = 5
 
-x[0][pid][0]
-print(x)
+player = []
+a = range(4)
+print(a[0])
