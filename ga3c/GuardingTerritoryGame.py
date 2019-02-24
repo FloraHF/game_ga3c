@@ -99,7 +99,7 @@ class GuardingTerritoryGame:
                     i.done = True
                     self.defenders[id].capture_buffer += 1
             self._update_intruders()
-        # print('defender', id, 'done:', self.defenders[id].done)
+        print('defender', id, 'done:', self.defenders[id].done)
         return reward, self.defenders[id].done
 
     def intruder_step(self, id, action):
@@ -155,7 +155,7 @@ class GuardingTerritoryGame:
                             # (self.captured = intruders[self.captured].id)
         self.entered = []   # indicesof entered intruders
                             # (self.entered = intruders[self.entered].id)
-                            
+
         # for d in np.arange(self.dcount):
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
@@ -165,7 +165,7 @@ class GuardingTerritoryGame:
             self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
         for a in range(self.icount):
             self.active.append(a)
-        print('game reset, active intruders:', self.active)
+        print('game reset, active intruders:', self.active, len(self.intruders))
 
 #################################################################################
 ################################# CLASS WORLDMAP ################################
