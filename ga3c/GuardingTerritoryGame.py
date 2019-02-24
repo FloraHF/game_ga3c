@@ -1,7 +1,9 @@
 from Config import Config
 import numpy as np
-import math
 import random as rd
+
+import math
+import time
 
 class GuardingTerritoryGame:
     """This is the game environment for the guarding territory game"""
@@ -12,10 +14,6 @@ class GuardingTerritoryGame:
         # number of defenders and intruders
         self.dcount = Config.DEFENDER_COUNT
         self.icount = Config.INTRUDER_COUNT
-
-        # default_actions
-        self.defender_default_action = -3
-        self.intruder_default_action = -3 # TODO randomize func, in Player
 
         self.reset()
 
@@ -44,6 +42,7 @@ class GuardingTerritoryGame:
         # captured
         new_captured = []
         old_active = self.active
+        print(old_active)
         for i in range(len(self.active)):
             if self.intruders[self.active[i]].captured == True:
                 self.captured.append(self.active[i])
@@ -99,7 +98,7 @@ class GuardingTerritoryGame:
                     i.done = True
                     self.defenders[id].capture_buffer += 1
             self._update_intruders()
-        print('defender', id, 'done:', self.defenders[id].done)
+        # print('defender', id, 'done:', self.defenders[id].done)
         return reward, self.defenders[id].done
 
     def intruder_step(self, id, action):
@@ -135,11 +134,9 @@ class GuardingTerritoryGame:
                 # every defender gets penalized
                 for d in self.defenders:
                     d.enter_buffer += 1
-
         self._update_intruders()
 
-        print('intruder', id, 'capture:', self.intruders[id].captured, 'entered:', self.intruders[id].entered, 'active intrusers', len(self.active))
-
+        # print('intruder', id, 'capture:', self.intruders[id].captured, 'entered:', self.intruders[id].entered, 'active intrusers', len(self.active))
         return reward, self.intruders[id].done
 
     def _is_captured(self, d, i):
@@ -165,7 +162,7 @@ class GuardingTerritoryGame:
             self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
         for a in range(self.icount):
             self.active.append(a)
-        print('game reset, active intruders:', self.active, len(self.intruders))
+        print('game reset,', len(self.intruders), 'active intruders:', self.active,)
 
 #################################################################################
 ################################# CLASS WORLDMAP ################################
