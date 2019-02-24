@@ -46,8 +46,6 @@ class Environment:
         self.current_state = None
         self.total_reward = 0
 
-        self.reset()
-
     def _get_current_state(self):
         if not self.frame_q.full():
             return None  # frame queue is not full yet.
