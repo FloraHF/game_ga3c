@@ -83,6 +83,7 @@ class ProcessAgent(Thread):
         x_ = np.array([exp.state for exp in experiences])
         a_ = np.eye(self.num_actions)[np.array([exp.action for exp in experiences])].astype(np.float32)
         r_ = np.array([exp.reward for exp in experiences])
+        # print(x_, r_, a_)
         return x_, r_, a_
 
     def predict(self, state):
@@ -120,25 +121,36 @@ class ProcessAgent(Thread):
         moves = 0
 
         while not done:
-            # moves += 1
-            # print(self.type, self.id, moves, 'th move')
+
+            # wait when other agents are updating the environment
+            while self.server.env.update_occupied:
+                # print(self.type, self.id, 'found environment occupied', self.server.env.update_occupied)
+                pass
+            ####################################################################
+            # update the environment
+            self.server.env.update_occupied = True
             # very first few frames
+            # print(self.type, self.id, 'is going to update')
             if self.server.env.current_state is None:
                 self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
+                self.server.env.update_occupied = False
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.server.env.step(self.type, self.id, action)
-            # print(self.server.env.previous_state)
+            previous_state, reward, done = self.server.env.step(self.type, self.id, action)
+            # release the space, let other agents update
+            self.server.env.update_occupied = False
+            # print(self.type, self.id, 'has updated the environment')
+            ####################################################################
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
-            exp = Experience(self.server.env.previous_state, action, prediction, reward, done)
+            exp = Experience(previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
 
-                _x = self.server.env.current_state
+                # _x = self.server.env.current_state
                 # if self.type == 'defender':
                 #     pid = self.id
                 #     print(self.type, self.id, 'current location', _x[0][pid][0], _x[1][pid][0], 'reward', reward)
@@ -175,6 +187,9 @@ class ProcessAgent(Thread):
                 # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
+                # print('state:\n', x_)
+                # print('reward:\n', r_)
+                # print('action:\n', a_)
                 self.training_q.put((x_, r_, a_))
             self.episode_log_q.put((datetime.now(), self.type, self.id, total_reward, total_length))
         # self.trj_saver.close()

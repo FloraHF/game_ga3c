@@ -10,6 +10,5 @@
 
 import numpy as np
 
-player = []
-a = range(4)
-print(a[0])
+a = {True: 1, False: 0}
+print(a[False])

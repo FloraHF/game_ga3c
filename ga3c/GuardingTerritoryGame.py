@@ -1,9 +1,18 @@
+import sys
+if sys.version_info >= (3,0):
+    from queue import Queue
+else:
+    from Queue import Queue
+
 from Config import Config
+
 import numpy as np
 import random as rd
-
 import math
+
 import time
+
+from threading import Thread
 
 class GuardingTerritoryGame:
     """This is the game environment for the guarding territory game"""
@@ -15,18 +24,21 @@ class GuardingTerritoryGame:
         self.dcount = Config.DEFENDER_COUNT
         self.icount = Config.INTRUDER_COUNT
 
+        self.intruder_update_q = Queue(maxsize = 2*Config.PLAYER_COUNT)
+        # self.intruder_updater = ThreadIntruderUpdater(self)
+
+        self.done_to_int_dic = {True: 0, False: 1}
         self.reset()
 
     def get_state(self):
-        x_ = np.array([[self.defenders[0].x], \
-                       [self.defenders[0].y]])
+        x_ = np.array([[self.defenders[0].x], [self.defenders[0].y],  \
+                       [self.done_to_int_dic[self.defenders[0].done]]])
         for d in np.arange(1, self.dcount):
-            x_ = np.hstack((x_, np.array([[self.defenders[d].x], \
-                                          [self.defenders[d].y]])))
-        for i in self.active:
-            x_ = np.hstack((x_, np.array([[self.intruders[i].x], \
-                                          [self.intruders[i].y]])))
-
+            x_ = np.hstack((x_, np.array([[self.defenders[d].x], [self.defenders[d].y], \
+                                          [self.done_to_int_dic[self.defenders[d].done]]])))
+        for i in np.arange(0, self.icount):
+            x_ = np.hstack((x_, np.array([[self.intruders[i].x], [self.intruders[i].y], \
+                                          [self.done_to_int_dic[self.intruders[i].done]]])))
         return x_
 
     def is_game_done(self):
@@ -39,19 +51,19 @@ class GuardingTerritoryGame:
         return done
 
     def _update_intruders(self):
+
         # captured
+        # print('active intruders: ', self.active)
         new_captured = []
-        old_active = self.active
-        print(old_active)
         for i in range(len(self.active)):
             if self.intruders[self.active[i]].captured == True:
                 self.captured.append(self.active[i])
                 new_captured.append(i)
         if len(new_captured):
-            print('new captured', new_captured)
+            # print('new captured', new_captured)
             for cap in reversed(new_captured):
                 self.active.pop(cap)
-                print('remove', cap, 'from', old_active, 'remains:', self.active)
+                # print('remaining intruders:', self.active)
         # entered
         new_entered = []
         for i in range(len(self.active)):
@@ -59,24 +71,24 @@ class GuardingTerritoryGame:
                 self.entered.append(self.active[i])
                 new_entered.append(i)
         if len(new_entered):
-            print('new entered', new_entered)
+            # print('new entered', new_entered)
             for ent in reversed(new_entered):
                 self.active.pop(ent)
-                print('remove', ent, 'from', old_active, 'remains:', self.active)
+                # print('remaining intruders:', self.active)
         # if no active intruders, done
         if not len(self.active):
             for d in self.defenders:
                 d.done = True
 
     def defender_step(self, id, action):
-        # settle up reward of the last action
+
+        # settle up reward of the former action
         for i in [self.intruders[active] for active in self.active]:
             self.defenders[id].capture_level_buffer += \
             self.defenders[id].capture_level(i.x, i.y)/self.defenders[id].capture_level(self.world.x_bound, self.world.y_bound)
-
         reward = self.defenders[id].clearup_reward()
 
-        # if done, return
+        # if not done yet, make move
         if not self.defenders[id].done:
             # have to take some actions
             self.defenders[id].time_buffer = 1
@@ -92,19 +104,24 @@ class GuardingTerritoryGame:
                 self.defenders[id].x = new_x
                 self.defenders[id].y = new_y
             # check if any active intruder is captured
+            new_captured = 0
             for i in [self.intruders[active] for active in self.active]:
                 if self._is_captured(self.defenders[id], i) and (not i.captured):
+                    new_captured += 1
                     i.captured = True
                     i.done = True
                     self.defenders[id].capture_buffer += 1
-            self._update_intruders()
+            if new_captured > 0:
+                self._update_intruders()
         # print('defender', id, 'done:', self.defenders[id].done)
         return reward, self.defenders[id].done
 
     def intruder_step(self, id, action):
 
+        # settle up reward of the former action
         reward = self.intruders[id].clearup_reward()
 
+        # if not done yet, make move
         if not self.intruders[id].done:
             self.intruders[id].time_buffer = 1
             self.intruders[id].target_level_old = self.intruders[id].target_level_new
@@ -134,7 +151,8 @@ class GuardingTerritoryGame:
                 # every defender gets penalized
                 for d in self.defenders:
                     d.enter_buffer += 1
-        self._update_intruders()
+            if self.intruders[id].done == True:
+                self._update_intruders()
 
         # print('intruder', id, 'capture:', self.intruders[id].captured, 'entered:', self.intruders[id].entered, 'active intrusers', len(self.active))
         return reward, self.intruders[id].done
@@ -144,6 +162,7 @@ class GuardingTerritoryGame:
 
     def reset(self):
         # defenders and intruders
+        self.intruder_update_q.queue.clear()
         self.defenders = [] # all the defender objectives
         self.intruders = [] # all the intruder objectives
         self.active = []    # indices of active intruders
@@ -312,3 +331,22 @@ class Intruder(Player):
         self.captured = False
         self.captured_mem = False
         self.entered = False
+
+# #################################################################################
+# ################################## CLASS UPDATE #################################
+# #################################################################################
+# class ThreadIntruderUpdater(Thread):
+#     """docstring for ThreadIntruderUpdate."""
+#     def __init__(self, game):
+#         super(ThreadIntruderUpdater, self).__init__()
+#         self.setDaemon(True)
+#
+#         self.game = game
+#         self.intruder_update_q = game.intruder_update_q
+#         self.exit_flag = False
+#
+#     def run(self):
+#         while not self.exit_flag:
+#             if not self.intruder_update_q.empty():
+#                 self.game._update_intruders()
+#                 self.intruder_update_q.get()
