@@ -114,7 +114,7 @@ class Config:
     PLAYER_DIMENSION = 3
 
     # Total number of episodes and annealing frequency
-    EPISODES = 100
+    EPISODES = 60
     DEFENDER_ANNEALING_EPISODE_COUNT = 400000
     INTRUDER_ANNEALING_EPISODE_COUNT = 400000
 
@@ -162,6 +162,7 @@ class Config:
 
     # Results filename
     RESULTS_FILENAME = 'results.txt'
+    TRAJECTORY_FILENAME = 'trj_'
     # Network checkpoint name
     NETWORK_NAME = 'network_'
 

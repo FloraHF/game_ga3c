@@ -69,6 +69,8 @@ class Server:
             player[pid].start()
             player[pid].predictor.start()
             player[pid].trainer.start()
+            if Config.PLAY_MODE:
+                player[pid].trj_recorder.start()
 
     def disable_players(self, who):
         player = getattr(self, who+'s')
@@ -78,7 +80,11 @@ class Server:
             player[pid].predictor.join()
             player[pid].trainer.exit_flag = True
             player[pid].trainer.join()
+            if Config.PLAY_MODE:
+                player[pid].trj_recorder.exit_flag = True
+                player[pid].trj_recorder.join()
             player[pid].exit_flag = True
+            player[pid].join()
             player.pop()
 
 

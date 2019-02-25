@@ -24,9 +24,6 @@ class GuardingTerritoryGame:
         self.dcount = Config.DEFENDER_COUNT
         self.icount = Config.INTRUDER_COUNT
 
-        self.intruder_update_q = Queue(maxsize = 2*Config.PLAYER_COUNT)
-        # self.intruder_updater = ThreadIntruderUpdater(self)
-
         self.done_to_int_dic = {True: 0, False: 1}
         self.reset()
 
@@ -162,7 +159,6 @@ class GuardingTerritoryGame:
 
     def reset(self):
         # defenders and intruders
-        self.intruder_update_q.queue.clear()
         self.defenders = [] # all the defender objectives
         self.intruders = [] # all the intruder objectives
         self.active = []    # indices of active intruders

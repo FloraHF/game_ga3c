@@ -74,7 +74,7 @@ class Environment:
 
         self.previous_state = self.current_state
         self.current_state = self._get_current_state()
-        return self.previous_state, reward, done
+        return self.previous_state, self.current_state, reward, done
 
     def intruder_step(self, id, action):
         reward, done = self.game.intruder_step(id, action)
@@ -88,13 +88,13 @@ class Environment:
         self.current_state = self._get_current_state()
 
         # print(self.current_state)
-        return self.previous_state, reward, done
+        return self.previous_state, self.current_state, reward, done
 
     def step(self, who, id, action):
         step_func = getattr(self, who + '_step')
-        previous_state, reward, _ = step_func(id, action)
+        previous_state, current_state, reward, _ = step_func(id, action)
         done  = self.game.is_game_done()
-        return previous_state, reward, done
+        return previous_state, current_state, reward, done
 
     def reset(self):
         self.game.reset()

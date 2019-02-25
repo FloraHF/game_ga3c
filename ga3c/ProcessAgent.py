@@ -36,6 +36,7 @@ from Environment import Environment
 from Experience import Experience
 from ThreadTrainer import ThreadTrainer
 from ThreadPredictor import ThreadPredictor
+from ThreadTrajectoryRecorder import ThreadTrajectoryRecorder
 from NetworkVP import NetworkVP
 
 
@@ -53,11 +54,13 @@ class ProcessAgent(Thread):
 
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.trajectory_log_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.episode_log_q = episode_log_q
         self.wait_q = Queue(maxsize=1)
 
         self.predictor = ThreadPredictor(self)
         self.trainer = ThreadTrainer(self)
+        self.trj_recorder = ThreadTrajectoryRecorder(self)
 
         self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME + self.type + str(self.id), Environment().get_num_actions())
         if Config.LOAD_CHECKPOINT:
@@ -133,10 +136,20 @@ class ProcessAgent(Thread):
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            previous_state, reward, done = self.server.env.step(self.type, self.id, action)
+            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, action)
             # release the space, let other agents update
             self.server.env.update_occupied = False
             ####################################################################
+            # if self.type == 'intruder':
+            #     print(self.server.env.game.intruders[0].x, self.server.env.game.intruders[0].y)
+            if Config.PLAY_MODE:
+                if self.type == 'defender':
+                    pid = self.id
+                elif self.type == 'intruder':
+                    pid = self.id + self.server.defender_count
+                x = current_state[0][pid][-1]
+                y = current_state[1][pid][-1]
+                self.trajectory_log_q.put((x, y, action, reward))
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
@@ -170,7 +183,6 @@ class ProcessAgent(Thread):
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
-                # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
