@@ -135,3 +135,4 @@ class Server:
         self.disable_players('defender')
 
         self.stats.exit_flag = True
+        self.stats.join()

@@ -82,7 +82,9 @@ class GuardingTerritoryGame:
         # settle up reward of the former action
         for i in [self.intruders[active] for active in self.active]:
             self.defenders[id].capture_level_buffer += \
-            self.defenders[id].capture_level(i.x, i.y)/self.defenders[id].capture_level(self.world.x_bound, self.world.y_bound)
+            self.defenders[id].capture_level(i.x, i.y)
+            self.defenders[id].intruder_target_level_buffer += \
+            self.world.target.contour(i.x, i.y)
         reward = self.defenders[id].clearup_reward()
 
         # if not done yet, make move
@@ -135,7 +137,6 @@ class GuardingTerritoryGame:
             # identify how close it is from target
             self.intruders[id].target_level_new = self.world.target.contour(self.intruders[id].x, self.intruders[id].y)
             for d in self.defenders:
-                d.intruder_target_level_buffer += self.intruders[id].target_level_new
                 if self._is_captured(d, self.intruders[id]):
                     self.intruders[id].captured = True
                     self.intruders[id].captured_mem = True
@@ -171,8 +172,8 @@ class GuardingTerritoryGame:
         # for d in np.arange(self.dcount):
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
-        self.defenders.append(Defender(id=0, x=-5, y=7))
-        self.defenders.append(Defender(id=1, x= 3, y=6))
+        self.defenders.append(Defender(id=0, world=self.world, x=-5, y=7))
+        self.defenders.append(Defender(id=1, world=self.world, x= 3, y=6))
         for i in np.arange(self.icount):
             self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
         for a in range(self.icount):
@@ -221,7 +222,8 @@ class WorldMap():
 
 class Player:
     """I am a player"""
-    def __init__(self, id, dynamic, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
+    def __init__(self, id, dynamic, world, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
+        self.world = world
         self.id = id
         self.dynamic = dynamic
         self.vmax = None
@@ -256,33 +258,41 @@ class Player:
 ################################## CLASS DEFENDER #################################
 class Defender(Player):
     """I am a defender."""
-    def __init__(self, id, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
-        super().__init__(id, Config.DEFENDER_DYNAMIC, x, y)
+    def __init__(self, id, world, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
+        super().__init__(id, Config.DEFENDER_DYNAMIC, world, x, y)
         self.vmax = Config.DEFENDER_MAX_VELOCITY
         self.action_space = Config.DEFENDER_ACTION_SPACE
         self.capture_range = Config.CAPTURE_RANGE
+
         self.capture_level_buffer = 0
         self.enter_buffer = 0
         self.capture_buffer = 0
         self.intruder_target_level_buffer = 0
+
+        self.intruder_max_target_level_buffer = self.capture_level(self.world.x_bound, self.world.y_bound)
 
     def capture_level(self, x, y):
         return np.sqrt((x - self.x)**2 + (y - self.y)**2) - self.capture_range
 
     def clearup_reward(self):
-        # penalty for spending the time
-        reward = self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
-        # reward of capture and breaking in
-        reward -= self.capture_level_buffer
+        # reward for no entering during this step
+        # reward = self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
+        reward = 0
+        self.time_buffer = 0
+
+        # running reward, for closer to capture, further to target
+        reward -= self.capture_level_buffer/self.intruder_max_target_level_buffer
+        reward += self.intruder_target_level_buffer/self.world.max_target_level
+        self.capture_level_buffer = 0
+        self.intruder_target_level_buffer = 0
+
+        # terminal: reward for capture, penalty for entering
         reward += Config.REWARD_CAPTURE * self.capture_buffer
         reward -= Config.REWARD_ENTER * self.enter_buffer
-        reward -= self.intruder_target_level_buffer
-        # clear up reward buffers
-        self.capture_level_buffer = 0
+
         self.capture_buffer = 0
         self.enter_buffer = 0
-        self.time_buffer = 0
-        self.intruder_target_level_buffer = 0
+
         # return
         return reward
 
@@ -294,20 +304,23 @@ class Defender(Player):
 class Intruder(Player):
     """I am an intruder."""
     def __init__(self, id, world, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
-        super().__init__(id, Config.INTRUDER_DYNAMIC, x, y)
+        super().__init__(id, Config.INTRUDER_DYNAMIC, world, x, y)
         self.vmax = Config.INTRUDER_MAX_VELOCITY
         self.action_space = Config.INTRUDER_ACTION_SPACE
+
         self.captured = False
         self.captured_mem = False
+
         self.entered = False
         self.entered_mem = False
-        self.world = world
+
         self.target_level_old = 0
         self.target_level_new = self.world.target.contour(self.x, self.y)
 
     def clearup_reward(self):
         # penalty for spending the time
-        reward = - self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
+        # reward = - self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
+        reward = 0
         self.time_buffer = 0
         # reward for entering
         if self.entered and not self.entered_mem:
