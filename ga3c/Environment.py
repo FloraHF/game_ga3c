@@ -45,6 +45,7 @@ class Environment:
         self.previous_state = None
         self.current_state = None
         self.total_reward = 0
+        self.update_occupied = False
 
     def _get_current_state(self):
         if not self.frame_q.full():
@@ -64,14 +65,6 @@ class Environment:
         elif player == 'defender':
             return self.game.defenders[id].get_num_actions()
 
-    def reset(self):
-        self.game.reset()
-        self.total_reward = 0
-        self.frame_q.queue.clear()
-        self._update_frame_q(self.game.get_state())
-        self.previous_state = None
-        self.current_state = None
-
     def defender_step(self, id, action):
         reward, done = self.game.defender_step(id, action)
         observation = self.game.get_state()
@@ -81,7 +74,7 @@ class Environment:
 
         self.previous_state = self.current_state
         self.current_state = self._get_current_state()
-        return reward, done
+        return self.previous_state, reward, done
 
     def intruder_step(self, id, action):
         reward, done = self.game.intruder_step(id, action)
@@ -95,10 +88,20 @@ class Environment:
         self.current_state = self._get_current_state()
 
         # print(self.current_state)
-        return reward, done
+        return self.previous_state, reward, done
 
     def step(self, who, id, action):
         step_func = getattr(self, who + '_step')
-        reward, _ = step_func(id, action)
+        previous_state, reward, _ = step_func(id, action)
         done  = self.game.is_game_done()
-        return reward, done
+        return previous_state, reward, done
+
+    def reset(self):
+        self.game.reset()
+        self.total_reward = 0
+        self.frame_q.queue.clear()
+        self.update_occupied = False
+        # while not self.frame_q.full():
+        #     self.frame_q.put(self.game.get_state())
+        self.previous_state = None
+        self.current_state = None

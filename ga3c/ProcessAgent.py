@@ -61,7 +61,7 @@ class ProcessAgent(Thread):
 
         self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME + self.type + str(self.id), Environment().get_num_actions())
         if Config.LOAD_CHECKPOINT:
-            self.stats.episode_count.value = self.model.load()
+            self.server.stats.episode_count.value = self.model.load()
 
         self.num_actions = self.server.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
@@ -83,6 +83,7 @@ class ProcessAgent(Thread):
         x_ = np.array([exp.state for exp in experiences])
         a_ = np.eye(self.num_actions)[np.array([exp.action for exp in experiences])].astype(np.float32)
         r_ = np.array([exp.reward for exp in experiences])
+        # print(x_, r_, a_)
         return x_, r_, a_
 
     def predict(self, state):
@@ -120,34 +121,31 @@ class ProcessAgent(Thread):
         moves = 0
 
         while not done:
-            # moves += 1
-            # print(self.type, self.id, moves, 'th move')
-            # very first few frames
+            # wait when other agents are updating the environment
+            while self.server.env.update_occupied:
+                pass
+            ####################################################################
+            # update the environment
+            self.server.env.update_occupied = True
             if self.server.env.current_state is None:
                 self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
+                self.server.env.update_occupied = False
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.server.env.step(self.type, self.id, action)
-            # print(self.server.env.previous_state)
+            previous_state, reward, done = self.server.env.step(self.type, self.id, action)
+            # release the space, let other agents update
+            self.server.env.update_occupied = False
+            ####################################################################
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
-            exp = Experience(self.server.env.previous_state, action, prediction, reward, done)
+            exp = Experience(previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
 
-                _x = self.server.env.current_state
-                # if self.type == 'defender':
-                #     pid = self.id
-                #     print(self.type, self.id, 'current location', _x[0][pid][0], _x[1][pid][0], 'reward', reward)
-                # if self.type == 'intruder':
-                #     pid = self.id + len(self.server.env.game.defenders)
-                #     print(self.type, self.id, 'current location', _x[0][pid][0], _x[1][pid][0], 'reward', reward, 'done:', done)
-
                 terminal_reward = 0 if done else old_value
-
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
                 x_, r_, a_ = self.convert_data(updated_exps)
                 yield x_, r_, a_, reward_sum
