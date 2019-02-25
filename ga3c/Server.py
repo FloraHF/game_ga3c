@@ -43,18 +43,17 @@ class Server:
 
         self.env = Environment()
 
-        if Config.LOAD_CHECKPOINT:
-            self.stats.episode_count.value = self.model.load()
-
         self.defender_count = Config.DEFENDER_COUNT
         self.intruder_count = Config.INTRUDER_COUNT
 
-        self.defenders = []
-        self.intruders = []
-
         self.stats = ProcessStats(self)
 
-    def enable_players(self, who):
+        self.defenders = []
+        self.intruders = []
+        self.add_players('defender')
+        self.add_players('intruder')
+
+    def add_players(self, who):
         player = getattr(self, who+'s')
         count = getattr(self, who+'_count')
         cur_len = len(player)
@@ -62,9 +61,14 @@ class Server:
             for _ in range(cur_len, count):
                 player.append(
                     ProcessAgent(len(player), who, self, self.stats.episode_log_q))
-                player[-1].start()
-                player[-1].predictor.start()
-                player[-1].trainer.start()
+
+    def enable_players(self, who):
+        player = getattr(self, who+'s')
+        len = getattr(self, who+'_count')
+        for pid in range(len):
+            player[pid].start()
+            player[pid].predictor.start()
+            player[pid].trainer.start()
 
     def disable_players(self, who):
         player = getattr(self, who+'s')

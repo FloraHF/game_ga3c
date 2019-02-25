@@ -44,6 +44,7 @@ class ProcessStats(Process):
         super(ProcessStats, self).__init__()
         self.server = server
         self.episode_log_q = Queue(maxsize=100)
+        self.episode_count = []
         self.episode_count = Value('i', 0)
         self.training_count = Value('i', 0)
         self.should_save_model = Value('i', 0)

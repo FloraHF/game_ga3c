@@ -8,7 +8,7 @@
 # fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 # plt.show()
 
-import numpy as np
+import re
 
-a = {True: 1, False: 0}
-print(a[False])
+text = 'network_defender0_00000020'
+print(int(re.split('_', text)[2]))
