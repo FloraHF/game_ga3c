@@ -78,36 +78,18 @@ class Config:
     #########################################################################
     # Game configuration
 
-    # Name of the game, with version (e.g. PongDeterministic-v0)
-    ATARI_GAME = 'PongDeterministic-v0'
-
     # Enable to see the trained agent in action
     PLAY_MODE = False
     # Enable to train
     TRAIN_MODELS = True
     # Load old models. Throws if the model doesn't exist
-    LOAD_CHECKPOINT = False
+    LOAD_CHECKPOINT = True
     # If 0, the latest checkpoint is loaded
     LOAD_EPISODE = 0
 
     #########################################################################
-    # Number of agents, predictors, trainers and other system settings
-
-    # If the dynamic configuration is on, these are the initial values.
-    # Number of Agents
-    AGENTS = 5
-    # Number of Predictors
-    PREDICTORS = 1
-    # Number of Trainers
-    TRAINERS = 1
-
     # Device
     DEVICE = 'gpu:0'
-
-    # Enable the dynamic adjustment (+ waiting time to start it)
-    DYNAMIC_SETTINGS = True
-    DYNAMIC_SETTINGS_STEP_WAIT = 20
-    DYNAMIC_SETTINGS_INITIAL_WAIT = 10
 
     #########################################################################
     # Algorithm parameters
@@ -129,11 +111,12 @@ class Config:
     # Input of the DNN
     STACKED_FRAMES = 1
     PLAYER_COUNT = DEFENDER_COUNT + INTRUDER_COUNT
-    PLAYER_DIMENSION = 2
+    PLAYER_DIMENSION = 3
 
     # Total number of episodes and annealing frequency
-    EPISODES = 100
-    ANNEALING_EPISODE_COUNT = 400000
+    EPISODES = 60
+    DEFENDER_ANNEALING_EPISODE_COUNT = 400000
+    INTRUDER_ANNEALING_EPISODE_COUNT = 400000
 
     # Entropy regualrization hyper-parameter
     BETA_START = 0.01
@@ -170,7 +153,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 500
+    SAVE_FREQUENCY = 20
 
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1
@@ -179,8 +162,9 @@ class Config:
 
     # Results filename
     RESULTS_FILENAME = 'results.txt'
+    TRAJECTORY_FILENAME = 'trj_'
     # Network checkpoint name
-    NETWORK_NAME = 'network'
+    NETWORK_NAME = 'network_'
 
     #########################################################################
     # More experimental parameters here

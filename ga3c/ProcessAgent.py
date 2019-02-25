@@ -26,6 +26,7 @@
 
 from datetime import datetime
 from multiprocessing import Process, Queue, Value
+from threading import Thread
 
 import numpy as np
 import time
@@ -33,27 +34,44 @@ import time
 from Config import Config
 from Environment import Environment
 from Experience import Experience
+from ThreadTrainer import ThreadTrainer
+from ThreadPredictor import ThreadPredictor
+from ThreadTrajectoryRecorder import ThreadTrajectoryRecorder
+from NetworkVP import NetworkVP
 
 
-class ProcessAgent(Process):
-    def __init__(self, id, server, prediction_q, training_q, episode_log_q):
+class ProcessAgent(Thread):
+    def __init__(self, id, type, server, episode_log_q):
         super(ProcessAgent, self).__init__()
 
         self.id = id
+        self.type = type
         self.server = server
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
-        self.prediction_q = prediction_q
-        self.training_q = training_q
-        self.episode_log_q = episode_log_q
 
-        self.env = Environment()
-        self.num_actions = self.env.get_num_actions()
+        self.training_step = 0
+        self.frame_counter = 0
+
+        self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.trajectory_log_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.episode_log_q = episode_log_q
+        self.wait_q = Queue(maxsize=1)
+
+        self.predictor = ThreadPredictor(self)
+        self.trainer = ThreadTrainer(self)
+        self.trj_recorder = ThreadTrajectoryRecorder(self)
+
+        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME + self.type + str(self.id), Environment().get_num_actions())
+        if Config.LOAD_CHECKPOINT:
+            self.server.stats.episode_count.value = self.model.load()
+
+        self.num_actions = self.server.env.get_num_actions()
         self.actions = np.arange(self.num_actions)
 
         self.discount_factor = Config.DISCOUNT
-        # one frame at a time
-        self.wait_q = Queue(maxsize=1)
-        self.exit_flag = Value('i', 0)
+
+        self.exit_flag = False
 
     @staticmethod
     def _accumulate_rewards(experiences, discount_factor, terminal_reward):
@@ -68,11 +86,12 @@ class ProcessAgent(Process):
         x_ = np.array([exp.state for exp in experiences])
         a_ = np.eye(self.num_actions)[np.array([exp.action for exp in experiences])].astype(np.float32)
         r_ = np.array([exp.reward for exp in experiences])
+        # print(x_, r_, a_)
         return x_, r_, a_
 
     def predict(self, state):
         # put the state in the prediction q
-        self.prediction_q.put((self.id, state))
+        self.prediction_q.put(state)
         # wait for the prediction to come back
         p, v = self.wait_q.get()
         return p, v
@@ -84,8 +103,18 @@ class ProcessAgent(Process):
             action = np.random.choice(self.actions, p=prediction)
         return action
 
+    def train_model(self, x_, r_, a_):
+        self.model.train(x_, r_, a_)
+        self.training_step += 1
+        self.frame_counter += x_.shape[0]
+
+        self.server.stats.training_count.value += 1
+
+        if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
+            self.model.log(x_, r_, a_)
+
     def run_episode(self):
-        self.env.reset()
+        self.server.env.reset()
         done = False
         experiences = []
 
@@ -95,27 +124,41 @@ class ProcessAgent(Process):
         moves = 0
 
         while not done:
-            # moves += 1
-            # print("current state:\n", self.env.current_state)
-            # very first few frames
-            if self.env.current_state is None:
-                # print("current state is none")
-                self.env.step(self.server.type, 0, 0)  # 0 == NOOP
+            # wait when other agents are updating the environment
+            while self.server.env.update_occupied:
+                pass
+            ####################################################################
+            # update the environment
+            self.server.env.update_occupied = True
+            if self.server.env.current_state is None:
+                self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
+                self.server.env.update_occupied = False
                 continue
-            # print("current state is not none")
-            prediction, value = self.predict(self.env.current_state)
+            prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            reward, done = self.env.step(self.server.type, 0, action)
-            # print("reward: ", reward)
+            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, action)
+            # release the space, let other agents update
+            self.server.env.update_occupied = False
+            ####################################################################
+            # if self.type == 'intruder':
+            #     print(self.server.env.game.intruders[0].x, self.server.env.game.intruders[0].y)
+            if Config.PLAY_MODE:
+                if self.type == 'defender':
+                    pid = self.id
+                elif self.type == 'intruder':
+                    pid = self.id + self.server.defender_count
+                x = current_state[0][pid][-1]
+                y = current_state[1][pid][-1]
+                self.trajectory_log_q.put((x, y, action, reward))
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward
-            exp = Experience(self.env.previous_state, action, prediction, reward, done)
+            exp = Experience(previous_state, action, prediction, reward, done)
             experiences.append(exp)
 
             if done or time_count == Config.TIME_MAX+1:
-                terminal_reward = 0 if done else old_value
 
+                terminal_reward = 0 if done else old_value
                 updated_exps = ProcessAgent._accumulate_rewards(experiences[:-1], self.discount_factor, terminal_reward)
                 x_, r_, a_ = self.convert_data(updated_exps)
                 yield x_, r_, a_, reward_sum
@@ -136,14 +179,12 @@ class ProcessAgent(Process):
         time.sleep(np.random.rand())
         np.random.seed(np.int32(time.time() % 1 * 1000 + self.id * 10))
 
-        while self.exit_flag.value == 0:
+        while not self.exit_flag:
             total_reward = 0
             total_length = 0
             for x_, r_, a_, reward_sum in self.run_episode():
-                # print(self.server.type, self.id, 'current location', "%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
-                # self.trj_saver.write("%s, %s\n" % (x_[0,0,-1,0], x_[0,1,-1,0]))
                 total_reward += reward_sum
                 total_length += len(r_) + 1  # +1 for last frame that we drop
                 self.training_q.put((x_, r_, a_))
-            self.episode_log_q.put((datetime.now(), total_reward, total_length))
+            self.episode_log_q.put((datetime.now(), self.type, self.id, total_reward, total_length))
         # self.trj_saver.close()

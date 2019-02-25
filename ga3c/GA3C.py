@@ -44,11 +44,7 @@ for i in range(1, len(sys.argv)):
 
 # Adjust configs for Play mode
 if Config.PLAY_MODE:
-    Config.AGENTS = 1
-    Config.PREDICTORS = 1
-    Config.TRAINERS = 1
-    Config.DYNAMIC_SETTINGS = False
-
+    
     Config.LOAD_CHECKPOINT = True
     Config.TRAIN_MODELS = False
     Config.SAVE_MODELS = False
@@ -56,4 +52,4 @@ if Config.PLAY_MODE:
 # gym.undo_logger_setup()
 
 # Start main program
-Server('intruder').main()
+Server().main()
