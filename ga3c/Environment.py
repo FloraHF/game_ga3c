@@ -45,7 +45,12 @@ class Environment:
         self.previous_state = None
         self.current_state = None
         self.total_reward = 0
-        self.update_occupied = False
+        self.update_q = []
+        for d in range(self.game.dcount):
+            self.update_q.append('defender_'+str(d))
+        for i in range(self.game.icount):
+            self.update_q.append('intruder_'+str(i))
+        print(self.update_q)
 
     def _get_current_state(self):
         if not self.frame_q.full():
@@ -105,3 +110,9 @@ class Environment:
         #     self.frame_q.put(self.game.get_state())
         self.previous_state = None
         self.current_state = None
+        self.update_q = []
+        for d in range(self.game.dcount):
+            self.update_q.append('defender_'+str(d))
+        for i in range(self.game.icount):
+            self.update_q.append('intruder_'+str(i))
+        print(self.update_q)

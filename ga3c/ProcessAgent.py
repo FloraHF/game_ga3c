@@ -47,10 +47,15 @@ class ProcessAgent(Thread):
         self.id = id
         self.type = type
         self.server = server
+        if self.type == 'defender':
+            self.action_space = Config.DEFENDER_ACTION_SPACE
+        elif self.type == 'intruder':
+            self.action_space = Config.INTRUDER_ACTION_SPACE
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
 
         self.training_step = 0
         self.frame_counter = 0
+
 
         self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
         self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
@@ -94,6 +99,7 @@ class ProcessAgent(Thread):
         self.prediction_q.put(state)
         # wait for the prediction to come back
         p, v = self.wait_q.get()
+        # print(self.type, self.id, '\s prediction and value', np.where(p == max(p)), v)
         return p, v
 
     def select_action(self, prediction):
@@ -115,6 +121,7 @@ class ProcessAgent(Thread):
 
     def run_episode(self):
         self.server.env.reset()
+        # print(self.predict(self.server.env.current_state))
         done = False
         experiences = []
 
@@ -125,20 +132,21 @@ class ProcessAgent(Thread):
 
         while not done:
             # wait when other agents are updating the environment
-            while self.server.env.update_occupied:
+            while self.server.env.update_q[-1] != self.type+'_'+ str(self.id):
                 pass
             ####################################################################
             # update the environment
-            self.server.env.update_occupied = True
             if self.server.env.current_state is None:
                 self.server.env.step(self.type, self.id, 0)  # 0 == NOOP
                 self.server.env.update_occupied = False
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, action)
+            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, self.action_space[action])
             # release the space, let other agents update
-            self.server.env.update_occupied = False
+            self.server.env.update_q.insert(0, self.type+'_'+ str(self.id))
+            self.server.env.update_q.pop()
+            # print(self.server.env.update_q)
             ####################################################################
             # if self.type == 'intruder':
             #     print(self.server.env.game.intruders[0].x, self.server.env.game.intruders[0].y)
@@ -149,7 +157,7 @@ class ProcessAgent(Thread):
                     pid = self.id + self.server.defender_count
                 x = current_state[0][pid][-1]
                 y = current_state[1][pid][-1]
-                self.trajectory_log_q.put((x, y, action, reward))
+                self.trajectory_log_q.put((x, y, self.action_space[action], reward))
             reward_sum += reward
             if len(experiences):
                 experiences[-1].reward = reward

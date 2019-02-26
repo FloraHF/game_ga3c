@@ -63,12 +63,12 @@ class Config:
     INTRUDER_ACTION_SPACE = np.arange(-math.pi, math.pi, .6)
     # Maximum velocities
     DEFENDER_MAX_VELOCITY = 1
-    INTRUDER_MAX_VELOCITY = 1.5
+    INTRUDER_MAX_VELOCITY = 1.6
     # Maximum accelerations
     DEFENDER_MAX_ACCELERATION = 1
     INTRUDER_MAX_ACCELERATION = 1
     # Defender's capture range
-    CAPTURE_RANGE = 2
+    CAPTURE_RANGE = 1.5
 
     # Reward definitions
     PENALTY_TIME_PASS = - 0.05 * TIME_STEP
@@ -114,7 +114,7 @@ class Config:
     PLAYER_DIMENSION = 3
 
     # Total number of episodes and annealing frequency
-    EPISODES = 60
+    EPISODES = 12
     DEFENDER_ANNEALING_EPISODE_COUNT = 400000
     INTRUDER_ANNEALING_EPISODE_COUNT = 400000
 
@@ -153,7 +153,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 20
+    SAVE_FREQUENCY = 5
 
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1

@@ -173,7 +173,7 @@ class GuardingTerritoryGame:
         #     self.defenders.append(Defender(id=d))
         # just for 2DSI for now
         self.defenders.append(Defender(id=0, world=self.world, x=-5, y=7))
-        self.defenders.append(Defender(id=1, world=self.world, x= 3, y=6))
+        self.defenders.append(Defender(id=1, world=self.world, x= 8, y=4))
         for i in np.arange(self.icount):
             self.intruders.append(Intruder(id=i, world=self.world, x=5, y=10))
         for a in range(self.icount):
