@@ -127,7 +127,8 @@ class ProcessAgent(Thread):
 
         moves = 0
 
-        while not done:
+        while not done and moves < 200:
+            moves += 1
             # wait when other agents are updating the environment
             while self.server.env.update_occupied:
                 pass
