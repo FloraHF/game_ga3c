@@ -39,84 +39,90 @@ from ThreadTrainer import ThreadTrainer
 
 
 class Server:
-    def __init__(self, type):
-        self.type = type
+    def __init__(self):
 
-        self.training_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
-        self.prediction_q = Queue(maxsize=Config.MAX_QUEUE_SIZE)
+        self.env = Environment()
 
-        self.model = NetworkVP(Config.DEVICE, Config.NETWORK_NAME, Environment().get_num_actions())
-        if Config.LOAD_CHECKPOINT:
-            self.stats.episode_count.value = self.model.load()
+        self.defender_count = Config.DEFENDER_COUNT
+        self.intruder_count = Config.INTRUDER_COUNT
 
-        self.training_step = 0
-        self.frame_counter = 0
-
-        self.agents = []
-        self.predictors = []
-        self.trainers = []
         self.stats = ProcessStats(self)
-        self.dynamic_adjustment = ThreadDynamicAdjustment(self)
 
-    def add_agent(self):
-        self.agents.append(
-            ProcessAgent(len(self.agents), self, self.prediction_q, self.training_q, self.stats.episode_log_q))
-        self.agents[-1].start()
+        self.defenders = []
+        self.intruders = []
+        self.add_players('defender')
+        self.add_players('intruder')
 
-    def remove_agent(self):
-        self.agents[-1].exit_flag.value = True
-        self.agents[-1].join()
-        self.agents.pop()
+    def add_players(self, who):
+        player = getattr(self, who+'s')
+        count = getattr(self, who+'_count')
+        cur_len = len(player)
+        if cur_len < count:
+            for _ in range(cur_len, count):
+                player.append(
+                    ProcessAgent(len(player), who, self, self.stats.episode_log_q))
 
-    def add_predictor(self):
-        self.predictors.append(ThreadPredictor(self, len(self.predictors)))
-        self.predictors[-1].start()
+    def enable_players(self, who):
+        player = getattr(self, who+'s')
+        len = getattr(self, who+'_count')
+        for pid in range(len):
+            player[pid].start()
+            player[pid].predictor.start()
+            player[pid].trainer.start()
+            if Config.PLAY_MODE:
+                player[pid].trj_recorder.start()
 
-    def remove_predictor(self):
-        self.predictors[-1].exit_flag = True
-        self.predictors[-1].join()
-        self.predictors.pop()
+    def disable_players(self, who):
+        player = getattr(self, who+'s')
+        count = getattr(self, who+'_count')
+        for pid in reversed(range(len(player))):
+            player[pid].predictor.exit_flag = True
+            player[pid].predictor.join()
+            player[pid].trainer.exit_flag = True
+            player[pid].trainer.join()
+            if Config.PLAY_MODE:
+                player[pid].trj_recorder.exit_flag = True
+                player[pid].trj_recorder.join()
+            player[pid].exit_flag = True
+            player[pid].join()
+            player.pop()
 
-    def add_trainer(self):
-        self.trainers.append(ThreadTrainer(self, len(self.trainers)))
-        self.trainers[-1].start()
-
-    def remove_trainer(self):
-        self.trainers[-1].exit_flag = True
-        self.trainers[-1].join()
-        self.trainers.pop()
-
-    def train_model(self, x_, r_, a_, trainer_id):
-        self.model.train(x_, r_, a_, trainer_id)
-        self.training_step += 1
-        self.frame_counter += x_.shape[0]
-
-        self.stats.training_count.value += 1
-        self.dynamic_adjustment.temporal_training_count += 1
-
-        if Config.TENSORBOARD and self.stats.training_count.value % Config.TENSORBOARD_UPDATE_FREQUENCY == 0:
-            self.model.log(x_, r_, a_)
 
     def save_model(self):
-        self.model.save(self.stats.episode_count.value)
+        for i in self.intruders:
+            i.model.save(self.stats.episode_count.value)
+        for d in self.defenders:
+            d.model.save(self.stats.episode_count.value)
 
     def main(self):
         self.stats.start()
-        self.dynamic_adjustment.start()
+        self.enable_players('intruder')
+        self.enable_players('defender')
 
         if Config.PLAY_MODE:
-            for trainer in self.trainers:
-                trainer.enabled = False
-
-        learning_rate_multiplier = (
-                                       Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.ANNEALING_EPISODE_COUNT
-        beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.ANNEALING_EPISODE_COUNT
+            for i in self.intruders:
+                i.trainer.enabled = False
+            for d in self.defenders:
+                d.trainer.enabled = False
 
         while self.stats.episode_count.value < Config.EPISODES:
 
-            step = min(self.stats.episode_count.value, Config.ANNEALING_EPISODE_COUNT - 1)
-            self.model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
-            self.model.beta = Config.BETA_START + beta_multiplier * step
+            for d in range(self.defender_count):
+                learning_rate_multiplier = (
+                                            Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.DEFENDER_ANNEALING_EPISODE_COUNT
+                beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.DEFENDER_ANNEALING_EPISODE_COUNT
+                step = min(self.stats.episode_count.value, Config.DEFENDER_ANNEALING_EPISODE_COUNT - 1)
+                self.defenders[d].model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
+                self.defenders[d].model.beta = Config.BETA_START + beta_multiplier * step
+
+            for i in range(self.intruder_count):
+                learning_rate_multiplier = (
+                                            Config.LEARNING_RATE_END - Config.LEARNING_RATE_START) / Config.INTRUDER_ANNEALING_EPISODE_COUNT
+                beta_multiplier = (Config.BETA_END - Config.BETA_START) / Config.INTRUDER_ANNEALING_EPISODE_COUNT
+
+                step = min(self.stats.episode_count.value, Config.INTRUDER_ANNEALING_EPISODE_COUNT - 1)
+                self.intruders[i].model.learning_rate = Config.LEARNING_RATE_START + learning_rate_multiplier * step
+                self.intruders[i].model.beta = Config.BETA_START + beta_multiplier * step
 
             # Saving is async - even if we start saving at a given episode, we may save the model at a later episode
             if Config.SAVE_MODELS and self.stats.should_save_model.value > 0:
@@ -125,9 +131,8 @@ class Server:
 
             time.sleep(0.01)
 
-        while self.agents:
-            self.remove_agent()
-        while self.predictors:
-            self.remove_predictor()
-        while self.trainers:
-            self.remove_trainer()
+        self.disable_players('intruder')
+        self.disable_players('defender')
+
+        self.stats.exit_flag = True
+        self.stats.join()

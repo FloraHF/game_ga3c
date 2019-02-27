@@ -1,9 +1,14 @@
-import matplotlib as mpl
-mpl.use('TkAgg')
-import matplotlib.pyplot as plt
+# import matplotlib as mpl
+# mpl.use('TkAgg')
+# import matplotlib.pyplot as plt
+#
+# fig = plt.figure()  # an empty figure with no axes
+# fig.suptitle('No axes on this figure')  # Add a title so we know which it is
+#
+# fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
+# plt.show()
 
-fig = plt.figure()  # an empty figure with no axes
-fig.suptitle('No axes on this figure')  # Add a title so we know which it is
+import re
 
-fig, ax_lst = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
-plt.show()
+text = 'network_defender0_00000020'
+print(int(re.split('_', text)[2]))

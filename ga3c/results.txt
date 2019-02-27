@@ -1,160 +1,281 @@
-2019-02-21 14:39:14, -297, 644
-2019-02-21 14:39:14, -50, 108
-2019-02-21 14:39:14, -354, 766
-2019-02-21 14:39:14, -341, 762
-2019-02-21 14:39:14, -445, 804
-2019-02-21 14:39:14, -33, 66
-2019-02-21 14:39:14, -47, 107
-2019-02-21 14:39:14, -35, 77
-2019-02-21 14:39:14, -63, 140
-2019-02-21 14:39:14, -30, 63
-2019-02-21 14:39:14, -52, 110
-2019-02-21 14:39:14, -17, 35
-2019-02-21 14:39:14, -41, 89
-2019-02-21 14:39:14, -420, 991
-2019-02-21 14:39:14, -35, 74
-2019-02-21 14:39:14, -34, 70
-2019-02-21 14:39:14, -40, 101
-2019-02-21 14:39:15, -51, 105
-2019-02-21 14:39:15, -53, 109
-2019-02-21 14:39:15, -46, 98
-2019-02-21 14:39:15, -46, 98
-2019-02-21 14:39:15, -18, 39
-2019-02-21 14:39:15, -31, 67
-2019-02-21 14:39:15, -39, 76
-2019-02-21 14:39:15, -30, 65
-2019-02-21 14:39:15, -67, 166
-2019-02-21 14:39:15, -34, 72
-2019-02-21 14:39:15, -26, 55
-2019-02-21 14:39:15, -50, 135
-2019-02-21 14:39:15, -28, 63
-2019-02-21 14:39:15, -32, 69
-2019-02-21 14:39:15, -23, 49
-2019-02-21 14:39:15, -27, 59
-2019-02-21 14:39:15, -20, 45
-2019-02-21 14:39:15, -12, 26
-2019-02-21 14:39:15, -15, 34
-2019-02-21 14:39:15, -28, 61
-2019-02-21 14:39:15, -24, 53
-2019-02-21 14:39:15, -29, 62
-2019-02-21 14:39:15, -24, 54
-2019-02-21 14:39:15, -20, 44
-2019-02-21 14:39:15, -26, 60
-2019-02-21 14:39:15, -20, 44
-2019-02-21 14:39:15, -20, 42
-2019-02-21 14:39:15, -22, 48
-2019-02-21 14:39:15, -24, 53
-2019-02-21 14:39:15, -22, 47
-2019-02-21 14:39:15, -30, 66
-2019-02-21 14:39:15, -22, 46
-2019-02-21 14:39:15, -36, 74
-2019-02-21 14:39:15, -16, 35
-2019-02-21 14:39:16, -41, 93
-2019-02-21 14:39:16, -43, 95
-2019-02-21 14:39:16, -30, 67
-2019-02-21 14:39:16, -23, 48
-2019-02-21 14:39:16, -23, 51
-2019-02-21 14:39:16, -27, 58
-2019-02-21 14:39:16, -31, 70
-2019-02-21 14:39:16, -34, 72
-2019-02-21 14:39:16, -24, 51
-2019-02-21 14:39:16, -36, 87
-2019-02-21 14:39:16, -24, 53
-2019-02-21 14:39:16, -21, 47
-2019-02-21 14:39:16, -24, 53
-2019-02-21 14:39:16, -27, 56
-2019-02-21 14:39:16, -15, 33
-2019-02-21 14:39:16, -23, 47
-2019-02-21 14:39:16, -33, 72
-2019-02-21 14:39:16, -34, 72
-2019-02-21 14:39:16, -22, 47
-2019-02-21 14:39:16, -24, 52
-2019-02-21 14:39:16, -27, 59
-2019-02-21 14:39:16, -33, 70
-2019-02-21 14:39:16, -23, 48
-2019-02-21 14:39:16, -24, 51
-2019-02-21 14:39:16, -24, 49
-2019-02-21 14:39:16, -23, 48
-2019-02-21 14:39:16, -23, 51
-2019-02-21 14:39:16, -16, 37
-2019-02-21 14:39:16, -36, 76
-2019-02-21 14:39:16, -13, 28
-2019-02-21 14:39:16, -16, 35
-2019-02-21 14:39:16, -32, 70
-2019-02-21 14:39:16, -33, 75
-2019-02-21 14:39:16, -47, 161
-2019-02-21 14:39:16, -18, 41
-2019-02-21 14:39:16, -22, 47
-2019-02-21 14:39:16, -34, 74
-2019-02-21 14:39:16, -13, 27
-2019-02-21 14:39:17, -17, 38
-2019-02-21 14:39:17, -23, 52
-2019-02-21 14:39:17, -35, 74
-2019-02-21 14:39:17, -17, 37
-2019-02-21 14:39:17, -24, 55
-2019-02-21 14:39:17, -13, 31
-2019-02-21 14:39:17, -18, 38
-2019-02-21 14:39:17, -21, 47
-2019-02-21 14:39:17, -21, 49
-2019-02-21 14:39:17, -15, 33
-2019-02-21 14:39:17, -25, 55
-2019-02-21 14:39:17, -24, 53
-2019-02-21 14:39:17, -22, 48
-2019-02-21 14:39:17, -28, 63
-2019-02-21 14:39:17, -20, 44
-2019-02-21 14:39:17, -34, 76
-2019-02-21 14:39:17, -31, 66
-2019-02-21 14:39:17, -31, 68
-2019-02-21 14:39:17, -39, 82
-2019-02-21 15:32:24, -253, 567
-2019-02-21 15:32:24, -294, 619
-2019-02-21 15:32:24, -269, 625
-2019-02-21 15:32:24, -304, 644
-2019-02-21 15:32:24, -309, 660
-2019-02-21 15:32:24, -71, 201
-2019-02-21 15:32:24, -60, 153
-2019-02-21 15:32:24, -53, 146
-2019-02-21 15:32:25, -71, 212
-2019-02-21 15:32:25, -61, 202
-2019-02-21 15:32:25, -35, 118
-2019-02-21 15:32:25, -62, 179
-2019-02-21 15:32:25, -59, 177
-2019-02-21 15:32:25, -51, 132
-2019-02-21 15:32:25, -51, 161
-2019-02-21 15:32:25, -59, 163
-2019-02-21 15:32:25, -49, 149
-2019-02-21 15:32:25, -43, 130
-2019-02-21 15:32:25, -52, 144
-2019-02-21 15:32:25, -53, 174
-2019-02-21 15:32:25, -40, 125
-2019-02-21 15:32:25, -57, 157
-2019-02-21 15:32:25, -40, 131
-2019-02-21 15:32:26, -42, 168
-2019-02-21 15:32:26, -40, 116
-2019-02-21 15:32:26, -42, 131
-2019-02-21 15:32:26, -30, 114
-2019-02-21 15:32:26, -39, 115
-2019-02-21 15:32:26, -50, 153
-2019-02-21 15:51:32, -701, 1353
-2019-02-21 15:51:34, -1225, 2660
-2019-02-21 15:51:35, -1365, 2928
-2019-02-21 15:51:35, -137, 287
-2019-02-21 15:51:35, -60, 131
-2019-02-21 15:51:35, -1840, 3212
-2019-02-21 15:51:35, -129, 271
-2019-02-21 15:51:35, -92, 200
-2019-02-21 15:51:36, -1459, 3337
-2019-02-21 15:51:36, -73, 156
-2019-02-21 15:51:36, -84, 185
-2019-02-21 15:51:36, -57, 124
-2019-02-21 15:51:36, -47, 105
-2019-02-21 15:51:36, -40, 93
-2019-02-21 15:51:36, -62, 137
-2019-02-21 15:51:36, -71, 170
-2019-02-21 15:51:36, -62, 132
-2019-02-21 15:51:36, -57, 133
-2019-02-21 15:51:36, -24, 53
-2019-02-21 15:51:37, -92, 193
-2019-02-21 15:51:37, -218, 668
-2019-02-21 15:51:37, -52, 119
-2019-02-21 15:51:37, -1401, 2576
+2019-02-24 10:50:18, intruder, <built-in function id>, -752, 1452
+2019-02-24 10:50:18, intruder, <built-in function id>, -231, 507
+2019-02-24 10:50:20, intruder, <built-in function id>, -521, 1409
+2019-02-24 10:50:20, intruder, <built-in function id>, -54, 121
+2019-02-24 10:50:20, intruder, <built-in function id>, -59, 132
+2019-02-24 10:50:20, intruder, <built-in function id>, -65, 210
+2019-02-24 10:50:21, intruder, <built-in function id>, -86, 312
+2019-02-24 10:50:21, intruder, <built-in function id>, -68, 168
+2019-02-24 10:50:21, intruder, <built-in function id>, -101, 431
+2019-02-24 10:50:22, intruder, <built-in function id>, -137, 355
+2019-02-24 10:50:22, intruder, <built-in function id>, -40, 90
+2019-02-24 10:50:22, intruder, <built-in function id>, -124, 412
+2019-02-24 10:50:22, intruder, <built-in function id>, -49, 108
+2019-02-24 10:50:23, intruder, <built-in function id>, -44, 87
+2019-02-24 10:50:23, intruder, <built-in function id>, -47, 105
+2019-02-24 10:50:23, intruder, <built-in function id>, -70, 142
+2019-02-24 10:50:23, intruder, <built-in function id>, -42, 90
+2019-02-24 10:50:23, intruder, <built-in function id>, -41, 94
+2019-02-24 10:50:23, intruder, <built-in function id>, -86, 251
+2019-02-24 10:50:23, intruder, <built-in function id>, -39, 90
+2019-02-24 10:50:24, intruder, <built-in function id>, -57, 138
+2019-02-24 10:50:24, intruder, <built-in function id>, -42, 94
+2019-02-24 10:50:24, intruder, <built-in function id>, -44, 98
+2019-02-24 10:50:24, intruder, <built-in function id>, -25, 56
+2019-02-24 10:50:24, intruder, <built-in function id>, -65, 177
+2019-02-24 10:50:24, intruder, <built-in function id>, -74, 202
+2019-02-24 10:50:24, intruder, <built-in function id>, -37, 89
+2019-02-24 10:50:24, intruder, <built-in function id>, -28, 60
+2019-02-24 10:50:24, intruder, <built-in function id>, -33, 79
+2019-02-24 10:50:24, intruder, <built-in function id>, -46, 93
+2019-02-24 10:50:25, intruder, <built-in function id>, -40, 87
+2019-02-24 10:50:25, intruder, <built-in function id>, -26, 55
+2019-02-24 10:50:25, intruder, <built-in function id>, -22, 49
+2019-02-24 10:50:25, intruder, <built-in function id>, -29, 61
+2019-02-24 10:50:25, intruder, <built-in function id>, -26, 56
+2019-02-24 10:50:25, intruder, <built-in function id>, -28, 68
+2019-02-24 10:50:25, intruder, <built-in function id>, -27, 60
+2019-02-24 10:50:25, intruder, <built-in function id>, -19, 46
+2019-02-24 10:50:25, intruder, <built-in function id>, -25, 56
+2019-02-24 10:50:25, intruder, <built-in function id>, -61, 184
+2019-02-24 10:50:25, intruder, <built-in function id>, -26, 59
+2019-02-24 10:50:25, intruder, <built-in function id>, -27, 60
+2019-02-24 10:50:25, intruder, <built-in function id>, -17, 39
+2019-02-24 10:50:25, intruder, <built-in function id>, -16, 34
+2019-02-24 10:50:26, intruder, <built-in function id>, -48, 185
+2019-02-24 10:50:26, intruder, <built-in function id>, -19, 44
+2019-02-24 10:50:26, intruder, <built-in function id>, -23, 51
+2019-02-24 10:50:26, intruder, <built-in function id>, -18, 40
+2019-02-24 10:50:26, intruder, <built-in function id>, -18, 45
+2019-02-24 10:50:26, intruder, <built-in function id>, -15, 32
+2019-02-24 10:50:26, intruder, <built-in function id>, -28, 61
+2019-02-24 10:50:26, intruder, <built-in function id>, -21, 46
+2019-02-24 10:50:26, intruder, <built-in function id>, -44, 242
+2019-02-24 10:50:26, intruder, <built-in function id>, -22, 48
+2019-02-24 10:50:26, intruder, <built-in function id>, -41, 107
+2019-02-24 10:50:27, intruder, <built-in function id>, -22, 49
+2019-02-24 10:50:27, intruder, <built-in function id>, -25, 54
+2019-02-24 10:50:27, intruder, <built-in function id>, -17, 39
+2019-02-24 10:50:27, intruder, <built-in function id>, -15, 35
+2019-02-24 10:50:27, intruder, <built-in function id>, -44, 103
+2019-02-24 10:50:27, intruder, <built-in function id>, -22, 48
+2019-02-24 10:50:27, intruder, <built-in function id>, -46, 170
+2019-02-24 10:50:27, intruder, <built-in function id>, -28, 63
+2019-02-24 10:50:27, intruder, <built-in function id>, -47, 108
+2019-02-24 10:50:27, intruder, <built-in function id>, -17, 38
+2019-02-24 10:50:27, intruder, <built-in function id>, -31, 69
+2019-02-24 10:50:27, intruder, <built-in function id>, -22, 49
+2019-02-24 10:50:27, intruder, <built-in function id>, -40, 209
+2019-02-24 10:50:27, intruder, <built-in function id>, -19, 41
+2019-02-24 10:50:27, intruder, <built-in function id>, -17, 41
+2019-02-24 10:50:27, intruder, <built-in function id>, -16, 40
+2019-02-24 10:50:27, intruder, <built-in function id>, -35, 77
+2019-02-24 10:50:28, intruder, <built-in function id>, -22, 51
+2019-02-24 10:50:28, intruder, <built-in function id>, -35, 75
+2019-02-24 10:50:28, intruder, <built-in function id>, -33, 76
+2019-02-24 10:50:28, intruder, <built-in function id>, -17, 38
+2019-02-24 10:50:28, intruder, <built-in function id>, -21, 53
+2019-02-24 10:50:28, intruder, <built-in function id>, -23, 53
+2019-02-24 10:53:34, defender, <built-in function id>, -3696, 635
+2019-02-24 10:53:34, intruder, <built-in function id>, -823, 1530
+2019-02-24 10:53:34, intruder, <built-in function id>, -65, 122
+2019-02-24 10:53:34, intruder, <built-in function id>, -39, 74
+2019-02-24 14:25:16, defender, <built-in function id>, -1537, 159
+2019-02-24 14:25:16, intruder, <built-in function id>, -422, 706
+2019-02-24 14:25:19, defender, <built-in function id>, -1282, 250
+2019-02-24 14:25:24, intruder, <built-in function id>, -106, 193
+2019-02-24 14:25:31, defender, <built-in function id>, -2092, 384
+2019-02-24 14:25:58, intruder, <built-in function id>, -420, 795
+2019-02-24 14:25:58, defender, <built-in function id>, -3275, 622
+2019-02-24 14:37:09, defender, <built-in function id>, -693, 149
+2019-02-24 14:37:19, intruder, <built-in function id>, -572, 1132
+2019-02-24 14:37:21, defender, <built-in function id>, -1144, 213
+2019-02-24 14:37:24, defender, <built-in function id>, -307, 61
+2019-02-24 14:37:24, intruder, <built-in function id>, -53, 105
+2019-02-24 14:37:34, defender, <built-in function id>, -874, 178
+2019-02-24 14:37:43, defender, <built-in function id>, -868, 164
+2019-02-24 14:37:53, defender, <built-in function id>, -1074, 194
+2019-02-24 15:24:48, intruder, <built-in function id>, -70, 132
+2019-02-24 15:24:48, defender, <built-in function id>, -622, 123
+2019-02-24 15:25:00, defender, <built-in function id>, -801, 395
+2019-02-24 15:29:22, defender, <built-in function id>, -1522, 303
+2019-02-24 15:29:36, defender, <built-in function id>, -2818, 598
+2019-02-24 15:34:04, defender, <built-in function id>, -4249, 828
+2019-02-24 15:34:04, defender, <built-in function id>, -1358, 247
+2019-02-24 15:34:04, intruder, <built-in function id>, -608, 1225
+2019-02-24 15:34:15, intruder, <built-in function id>, -103, 188
+2019-02-24 15:34:28, defender, <built-in function id>, -2281, 411
+2019-02-24 15:34:28, intruder, <built-in function id>, -122, 222
+2019-02-24 15:34:28, defender, <built-in function id>, -2147, 410
+2019-02-24 15:34:40, defender, <built-in function id>, -1239, 212
+2019-02-24 15:34:40, defender, <built-in function id>, -1169, 222
+2019-02-24 15:34:40, intruder, <built-in function id>, -122, 219
+2019-02-24 15:34:46, intruder, <built-in function id>, -60, 116
+2019-02-24 15:34:46, defender, <built-in function id>, -595, 109
+2019-02-24 15:34:46, defender, <built-in function id>, -566, 112
+2019-02-24 15:35:05, intruder, <built-in function id>, -177, 339
+2019-02-24 15:35:15, defender, <built-in function id>, -2496, 497
+2019-02-24 15:35:15, intruder, <built-in function id>, -87, 159
+2019-02-24 15:35:24, defender, <built-in function id>, -794, 168
+2019-02-24 15:35:30, defender, <built-in function id>, -523, 108
+2019-02-24 15:35:30, intruder, <built-in function id>, -139, 276
+2019-02-24 15:35:35, defender, <built-in function id>, -458, 89
+2019-02-24 15:35:54, defender, <built-in function id>, -1383, 321
+2019-02-24 15:35:54, intruder, <built-in function id>, -194, 416
+2019-02-24 15:36:03, intruder, <built-in function id>, -71, 132
+2019-02-24 15:36:03, defender, <built-in function id>, -672, 132
+2019-02-24 15:37:43, defender, <built-in function id>, -8906, 1840
+2019-02-24 15:38:31, intruder, <built-in function id>, -1433, 2982
+2019-02-24 15:39:07, defender, <built-in function id>, -7405, 1609
+2019-02-24 15:39:49, intruder, <built-in function id>, -756, 1491
+2019-02-24 15:40:26, intruder, <built-in function id>, -375, 679
+2019-02-24 15:41:31, intruder, <built-in function id>, -717, 1314
+2019-02-24 15:44:38, defender, <built-in function id>, -11736, 1630
+2019-02-24 15:44:38, intruder, <built-in function id>, -1604, 2425
+2019-02-24 15:44:45, defender, <built-in function id>, -13526, 1993
+2019-02-24 15:45:03, defender, <built-in function id>, -86, 494
+2019-02-24 15:49:27, defender, <built-in function id>, -1257, 238
+2019-02-24 15:49:27, defender, <built-in function id>, -1191, 244
+2019-02-24 16:41:23, intruder, <built-in function id>, -171, 315
+2019-02-24 16:41:56, defender, <built-in function id>, -2145, 653
+2019-02-24 16:44:11, defender, <built-in function id>, -906, 117
+2019-02-24 16:44:46, intruder, <built-in function id>, -339, 611
+2019-02-24 16:46:37, defender, <built-in function id>, -3169, 543
+2019-02-24 16:50:06, intruder, <built-in function id>, -631, 1241
+2019-02-24 16:50:52, defender, <built-in function id>, -4883, 975
+2019-02-24 16:52:02, intruder, <built-in function id>, -175, 311
+2019-02-24 16:53:39, intruder, <built-in function id>, -228, 433
+2019-02-24 16:54:32, intruder, <built-in function id>, -101, 193
+2019-02-24 17:25:23, intruder, <built-in function id>, -143, 314
+2019-02-24 17:25:54, intruder, <built-in function id>, -50, 96
+2019-02-24 17:26:05, intruder, <built-in function id>, -70, 138
+2019-02-24 17:27:23, defender, <built-in function id>, -6402, 1213
+2019-02-24 17:28:21, defender, <built-in function id>, -902, 175
+2019-02-24 17:29:07, defender, <built-in function id>, -755, 247
+2019-02-24 17:31:15, intruder, <built-in function id>, -535, 1071
+2019-02-24 17:33:44, defender, <built-in function id>, -3846, 735
+2019-02-24 17:34:26, defender, <built-in function id>, -915, 193
+2019-02-24 17:35:27, intruder, <built-in function id>, -384, 772
+2019-02-24 17:37:42, intruder, <built-in function id>, -192, 397
+2019-02-24 17:38:54, defender, <built-in function id>, -3754, 845
+2019-02-24 17:40:20, intruder, <built-in function id>, -260, 507
+2019-02-24 17:40:42, intruder, <built-in function id>, -39, 77
+2019-02-24 17:42:19, defender, <built-in function id>, -29061, 5764
+2019-02-24 17:43:11, intruder, <built-in function id>, -245, 501
+2019-02-24 17:43:46, intruder, <built-in function id>, -71, 139
+2019-02-24 17:44:41, defender, <built-in function id>, -2339, 503
+2019-02-24 17:46:14, intruder, <built-in function id>, -238, 501
+2019-02-24 17:48:13, intruder, <built-in function id>, -253, 518
+2019-02-24 17:49:25, defender, <built-in function id>, -4964, 1015
+2019-02-24 17:50:35, intruder, <built-in function id>, -240, 501
+2019-02-24 17:51:10, defender, <built-in function id>, -11814, 2562
+2019-02-24 17:51:55, intruder, <built-in function id>, -148, 294
+2019-02-24 17:53:15, defender, <built-in function id>, -2084, 495
+2019-02-24 17:53:45, intruder, <built-in function id>, -184, 382
+2019-02-24 17:54:53, defender, <built-in function id>, -5527, 1237
+2019-02-24 19:55:37, intruder, <built-in function id>, -199, 415
+2019-02-24 19:56:29, intruder, <built-in function id>, -100, 214
+2019-02-24 19:57:12, intruder, <built-in function id>, -81, 171
+2019-02-24 19:58:07, intruder, <built-in function id>, -75, 149
+2019-02-24 19:59:18, intruder, <built-in function id>, -102, 209
+2019-02-24 20:00:13, defender, <built-in function id>, -5168, 1120
+2019-02-24 20:01:43, intruder, <built-in function id>, -246, 501
+2019-02-24 20:02:18, intruder, <built-in function id>, -66, 131
+2019-02-24 20:03:01, intruder, <built-in function id>, -114, 226
+2019-02-24 20:03:59, intruder, <built-in function id>, -137, 283
+2019-02-24 20:05:11, intruder, <built-in function id>, -153, 314
+2019-02-24 20:05:36, intruder, <built-in function id>, -101, 191
+2019-02-24 20:06:21, defender, <built-in function id>, -12687, 2411
+2019-02-24 20:07:28, intruder, <built-in function id>, -187, 383
+2019-02-24 20:08:18, defender, <built-in function id>, -8630, 1699
+2019-02-24 20:08:55, defender, <built-in function id>, -2710, 661
+2019-02-24 20:09:57, intruder, <built-in function id>, -341, 686
+2019-02-24 21:03:40, defender, <built-in function id>, -2072, 404
+2019-02-24 21:06:54, intruder, <built-in function id>, -111, 226
+2019-02-24 21:08:40, intruder, <built-in function id>, -354, 531
+2019-02-24 21:08:51, intruder, <built-in function id>, -70, 128
+2019-02-24 21:09:15, intruder, <built-in function id>, -75, 136
+2019-02-24 21:09:23, defender, <built-in function id>, -2679, 535
+2019-02-24 21:09:34, intruder, <built-in function id>, -150, 276
+2019-02-24 21:10:08, defender, <built-in function id>, -3963, 721
+2019-02-24 21:10:20, intruder, <built-in function id>, -176, 304
+2019-02-24 21:10:45, intruder, <built-in function id>, -171, 255
+2019-02-24 21:11:34, intruder, <built-in function id>, -68, 125
+2019-02-24 21:12:23, intruder, <built-in function id>, -111, 182
+2019-02-24 21:12:50, intruder, <built-in function id>, -90, 153
+2019-02-24 21:13:39, defender, <built-in function id>, -6580, 1407
+2019-02-24 21:14:09, intruder, <built-in function id>, -173, 298
+2019-02-24 21:14:36, intruder, <built-in function id>, -76, 139
+2019-02-24 21:36:59, intruder, <built-in function id>, -79, 145
+2019-02-24 21:37:18, intruder, <built-in function id>, -71, 130
+2019-02-24 21:37:49, intruder, <built-in function id>, -78, 140
+2019-02-24 21:38:18, intruder, <built-in function id>, -90, 156
+2019-02-24 21:38:49, intruder, <built-in function id>, -83, 145
+2019-02-24 21:39:11, intruder, <built-in function id>, -66, 125
+2019-02-24 21:39:55, intruder, <built-in function id>, -72, 132
+2019-02-24 21:40:39, intruder, <built-in function id>, -111, 177
+2019-02-24 21:41:15, intruder, <built-in function id>, -81, 147
+2019-02-24 21:42:04, defender, <built-in function id>, -7411, 1505
+2019-02-24 21:42:31, intruder, <built-in function id>, -193, 329
+2019-02-24 21:43:13, defender, <built-in function id>, -8085, 2160
+2019-02-24 21:43:24, intruder, <built-in function id>, -157, 282
+2019-02-24 21:44:03, defender, <built-in function id>, -2279, 486
+2019-02-24 21:44:40, intruder, <built-in function id>, -146, 270
+2019-02-24 21:45:10, intruder, <built-in function id>, -78, 143
+2019-02-24 21:45:36, intruder, <built-in function id>, -83, 145
+2019-02-24 21:46:08, intruder, <built-in function id>, -68, 125
+2019-02-24 21:46:57, intruder, <built-in function id>, -84, 147
+2019-02-24 21:47:07, intruder, <built-in function id>, -89, 153
+2019-02-24 21:47:19, defender, <built-in function id>, -4772, 949
+2019-02-24 21:47:44, intruder, <built-in function id>, -166, 290
+2019-02-24 21:48:12, intruder, <built-in function id>, -76, 136
+2019-02-24 21:49:12, intruder, <built-in function id>, -69, 130
+2019-02-24 21:49:54, intruder, <built-in function id>, -83, 146
+2019-02-24 21:50:52, intruder, <built-in function id>, -69, 129
+2019-02-24 21:51:11, intruder, <built-in function id>, -75, 138
+2019-02-24 21:58:03, intruder, <built-in function id>, -226, 380
+2019-02-24 21:58:14, intruder, <built-in function id>, -84, 149
+2019-02-24 21:58:29, intruder, <built-in function id>, -75, 139
+2019-02-24 22:21:19, intruder, <built-in function id>, -108, 185
+2019-02-24 22:21:59, intruder, <built-in function id>, -65, 122
+2019-02-24 22:22:35, defender, <built-in function id>, -2434, 378
+2019-02-24 22:23:10, defender, <built-in function id>, -837, 102
+2019-02-24 22:23:58, intruder, <built-in function id>, -318, 531
+2019-02-24 22:24:38, intruder, <built-in function id>, -73, 135
+2019-02-24 22:25:25, intruder, <built-in function id>, -74, 135
+2019-02-24 22:26:07, intruder, <built-in function id>, -79, 142
+2019-02-24 22:27:18, defender, <built-in function id>, -1515, 173
+2019-02-24 22:27:41, intruder, <built-in function id>, -240, 384
+2019-02-24 22:28:04, intruder, <built-in function id>, -71, 129
+2019-02-24 22:28:13, intruder, <built-in function id>, -90, 154
+2019-02-24 22:28:20, intruder, <built-in function id>, -72, 132
+2019-02-24 22:29:03, intruder, <built-in function id>, -75, 138
+2019-02-24 22:44:03, defender, <built-in function id>, -901, 973
+2019-02-24 22:47:02, intruder, <built-in function id>, -138, 259
+2019-02-24 22:52:48, intruder, <built-in function id>, -399, 814
+2019-02-24 22:54:50, intruder, <built-in function id>, -217, 516
+2019-02-24 22:56:57, intruder, <built-in function id>, -293, 558
+2019-02-24 23:02:22, intruder, <built-in function id>, -699, 1213
+2019-02-24 23:03:50, intruder, <built-in function id>, -155, 320
+2019-02-24 23:05:19, defender, <built-in function id>, -17228, 3481
+2019-02-24 23:06:06, defender, <built-in function id>, -2240, 247
+2019-02-24 23:07:45, intruder, <built-in function id>, -680, 1267
+2019-02-24 23:09:32, defender, <built-in function id>, -3620, 667
+2019-02-24 23:11:56, defender, <built-in function id>, -4142, 647
+2019-02-24 23:22:45, intruder, <built-in function id>, -861, 1494
+2019-02-24 23:44:12, intruder, <built-in function id>, -173, 341
+2019-02-24 23:45:15, defender, <built-in function id>, -31969, 5222
+2019-02-24 23:48:59, defender, <built-in function id>, -7476, 749
+2019-02-24 23:51:26, intruder, <built-in function id>, -1196, 1840
+2019-02-24 23:53:40, defender, <built-in function id>, -4932, 790
+2019-02-24 23:55:08, intruder, <built-in function id>, -363, 744
+2019-02-24 23:57:16, intruder, <built-in function id>, -209, 374
+2019-02-24 23:59:52, defender, <built-in function id>, -5144, 1122
+2019-02-25 00:02:35, intruder, <built-in function id>, -445, 937
+2019-02-26 22:46:19, intruder, <built-in function id>, -221, 481
+2019-02-26 22:46:25, intruder, <built-in function id>, -34, 72
+2019-02-26 22:46:29, intruder, <built-in function id>, -26, 53
+2019-02-26 22:46:37, intruder, <built-in function id>, -68, 133
+2019-02-26 22:46:46, intruder, <built-in function id>, -53, 122
+2019-02-26 22:46:53, intruder, <built-in function id>, -52, 101
+2019-02-26 22:47:12, defender, <built-in function id>, 223, 853
