@@ -47,6 +47,10 @@ class ProcessAgent(Thread):
         self.id = id
         self.type = type
         self.server = server
+        if self.type == 'defender':
+            self.action_space = Config.DEFENDER_ACTION_SPACE
+        elif self.type == 'intruder':
+            self.action_space = Config.INTRUDER_ACTION_SPACE
         # self.trj_saver = open('trj'+str(self.id)+'.txt', 'w')
 
         self.training_step = 0
@@ -136,7 +140,7 @@ class ProcessAgent(Thread):
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
-            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, action)
+            previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, self.action_space[action])
             # release the space, let other agents update
             self.server.env.update_occupied = False
             ####################################################################

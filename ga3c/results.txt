@@ -279,3 +279,16 @@
 2019-02-26 22:46:46, intruder, <built-in function id>, -53, 122
 2019-02-26 22:46:53, intruder, <built-in function id>, -52, 101
 2019-02-26 22:47:12, defender, <built-in function id>, 223, 853
+2019-02-26 22:51:35, intruder, <built-in function id>, -340, 706
+2019-02-26 22:53:11, intruder, <built-in function id>, -128, 320
+2019-02-26 22:55:18, intruder, <built-in function id>, -150, 434
+2019-02-26 22:55:34, intruder, <built-in function id>, -95, 248
+2019-02-26 22:56:04, defender, <built-in function id>, 136, 1301
+2019-02-26 22:56:37, defender, <built-in function id>, 30, 102
+2019-02-26 22:56:41, intruder, <built-in function id>, -91, 188
+2019-02-26 22:57:04, intruder, <built-in function id>, -76, 195
+2019-02-26 22:57:51, intruder, <built-in function id>, -102, 224
+2019-02-26 22:58:06, defender, <built-in function id>, 90, 390
+2019-02-26 23:15:48, defender, <built-in function id>, 51, 171
+2019-02-26 23:26:04, intruder, <built-in function id>, -190, 350
+2019-02-26 23:27:09, defender, <built-in function id>, 124, 398

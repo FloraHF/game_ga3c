@@ -298,7 +298,10 @@ class Defender(Player):
 
     def reset(self, x=-Config.WORLD_X_BOUND, y=Config.WORLD_Y_BOUND):
         super().reset(x, y)
-        self.total_capture = 0
+        self.capture_level_buffer = 0
+        self.enter_buffer = 0
+        self.capture_buffer = 0
+        self.intruder_target_level_buffer = 0
 
 ################################## CLASS INTRUDER #################################
 class Intruder(Player):

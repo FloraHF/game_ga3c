@@ -114,7 +114,7 @@ class Config:
     PLAYER_DIMENSION = 3
 
     # Total number of episodes and annealing frequency
-    EPISODES = 60
+    EPISODES = 62
     DEFENDER_ANNEALING_EPISODE_COUNT = 400000
     INTRUDER_ANNEALING_EPISODE_COUNT = 400000
 
@@ -153,7 +153,7 @@ class Config:
     # Enable to save models every SAVE_FREQUENCY episodes
     SAVE_MODELS = True
     # Save every SAVE_FREQUENCY episodes
-    SAVE_FREQUENCY = 20
+    SAVE_FREQUENCY = 10
 
     # Print stats every PRINT_STATS_FREQUENCY episodes
     PRINT_STATS_FREQUENCY = 1
