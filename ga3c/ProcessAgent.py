@@ -121,7 +121,6 @@ class ProcessAgent(Thread):
 
     def run_episode(self):
         self.server.env.reset()
-        # print(self.predict(self.server.env.current_state))
         done = False
         experiences = []
 
@@ -142,6 +141,7 @@ class ProcessAgent(Thread):
                 continue
             prediction, value = self.predict(self.server.env.current_state)
             action = self.select_action(prediction)
+            # print(self.type, self.id, action)
             previous_state, current_state, reward, done = self.server.env.step(self.type, self.id, self.action_space[action])
             # release the space, let other agents update
             self.server.env.update_q.insert(0, self.type+'_'+ str(self.id))

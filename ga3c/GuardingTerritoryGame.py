@@ -278,7 +278,7 @@ class Defender(Player):
         # reward for no entering during this step
         # reward = self.time_buffer * Config.PENALTY_TIME_PASS * Config.TIME_STEP
         reward = 0
-        self.time_buffer = 0
+        # self.time_buffer = 0
 
         # running reward, for closer to capture, further to target
         reward -= self.capture_level_buffer/self.intruder_max_target_level_buffer
@@ -289,7 +289,6 @@ class Defender(Player):
         # terminal: reward for capture, penalty for entering
         reward += Config.REWARD_CAPTURE * self.capture_buffer
         reward -= Config.REWARD_ENTER * self.enter_buffer
-
         self.capture_buffer = 0
         self.enter_buffer = 0
 
@@ -331,7 +330,7 @@ class Intruder(Player):
             reward -= Config.REWARD_CAPTURE
         # reward for getting closer to target
         # reward += (self.target_level_old - self.target_level_new)/self.world.max_target_level
-        reward -= self.target_level_new/self.world.max_target_level
+        reward -= 3*self.target_level_new/self.world.max_target_level
 
         return reward
 
